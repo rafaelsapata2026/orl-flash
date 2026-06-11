@@ -1,0 +1,3 @@
+# Coloque aqui os arquivos CSV para importar para o Supabase
+# Exemplo: Cap02_ORL_Flash.csv, Cap03_ORL_Flash.csv, etc.
+# Os CSVs NÃO são enviados para o GitHub (estão no .gitignore)
