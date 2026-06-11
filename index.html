@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ORL Flash â Flashcards de Otorrinolaringologia</title>
+<title>ORL Flash Ã¢ÂÂ Flashcards de Otorrinolaringologia</title>
 
 <!-- ============================================================
-     CONFIGURAÃÃO SUPABASE â preencha apÃ³s criar o projeto
+     CONFIGURAÃÂÃÂO SUPABASE Ã¢ÂÂ preencha apÃÂ³s criar o projeto
      ============================================================
      1. Acesse: https://supabase.com/dashboard/project/SEU_PROJETO/settings/api
-     2. Copie "Project URL" â SUPABASE_URL
-     3. Copie "anon public" â SUPABASE_KEY
+     2. Copie "Project URL" Ã¢ÂÂ SUPABASE_URL
+     3. Copie "anon public" Ã¢ÂÂ SUPABASE_KEY
      ============================================================ -->
 <script>
-  const SUPABASE_URL = "https://dpdfzysuyqhovtmclfcc.supabase.co";   // â preencher
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwZGZ6eXN1eXFob3Z0bWNsZmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNTYxNTMsImV4cCI6MjA5MzkzMjE1M30.mzt5Sa9VgiymQ51YkVsDJT3vxj6X7vwEciPbpFa3o9s";                 // â preencher
+  const SUPABASE_URL = "https://dpdfzysuyqhovtmclfcc.supabase.co";   // Ã¢ÂÂ preencher
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwZGZ6eXN1eXFob3Z0bWNsZmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNTYxNTMsImV4cCI6MjA5MzkzMjE1M30.mzt5Sa9VgiymQ51YkVsDJT3vxj6X7vwEciPbpFa3o9s";                 // Ã¢ÂÂ preencher
   const MODO_DEMO    = SUPABASE_URL.includes("SEU_PROJETO"); // true = usa dados locais
 </script>
 
@@ -161,16 +161,16 @@
 <header>
   <div class="logo">ORL <span>Flash</span></div>
   <div class="header-stats">
-    <span class="stat-pill" id="h-total">â¦</span>
+    <span class="stat-pill" id="h-total">Ã¢ÂÂ¦</span>
     <span class="stat-pill" id="h-hoje">0 hoje</span>
     <span class="demo-badge" id="demo-badge" style="display:none">DEMO</span>
   </div>
 </header>
 
 <div class="filtros" id="filtros" style="display:none">
-  <label>Ãrea</label>
+  <label>ÃÂrea</label>
   <select id="f-area" onchange="filtrar()"><option value="">Todas</option></select>
-  <label>CapÃ­tulo</label>
+  <label>CapÃÂ­tulo</label>
   <select id="f-cap"  onchange="filtrar()"><option value="">Todos</option></select>
   <label>Tipo</label>
   <select id="f-tipo" onchange="filtrar()">
@@ -178,9 +178,9 @@
     <option value="PR">P&amp;R</option>
     <option value="Lacuna">Lacuna</option>
     <option value="Imagem">Imagem</option>
-    <option value="ContextoClinico">Contexto ClÃ­nico</option>
+    <option value="ContextoClinico">Contexto ClÃÂ­nico</option>
   </select>
-  <button class="btn-shuffle" id="btn-emb" onclick="embaralhar()">ð Embaralhar</button>
+  <button class="btn-shuffle" id="btn-emb" onclick="embaralhar()">Ã°ÂÂÂ Embaralhar</button>
 </div>
 
 <div class="progresso" id="barra-prog" style="display:none">
@@ -188,13 +188,13 @@
   <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   <div class="mini-placar">
     <div class="mp"><span class="dot dot-v"></span><span id="mp-v">0</span> acertei</div>
-    <div class="mp"><span class="dot dot-d"></span><span id="mp-d">0</span> dÃºvida</div>
+    <div class="mp"><span class="dot dot-d"></span><span id="mp-d">0</span> dÃÂºvida</div>
     <div class="mp"><span class="dot dot-e"></span><span id="mp-e">0</span> errei</div>
   </div>
 </div>
 
 <main>
-  <div id="loading"><div class="spinner"></div><span>Carregando flashcardsâ¦</span></div>
+  <div id="loading"><div class="spinner"></div><span>Carregando flashcardsÃ¢ÂÂ¦</span></div>
   <div id="tela-card" style="display:none">
     <div class="card" id="card-el">
       <div class="card-head">
@@ -205,109 +205,109 @@
         <span class="card-fonte"       id="c-fonte"></span>
       </div>
       <div class="card-body">
-        <div class="tag tag-p">ð Pergunta</div>
+        <div class="tag tag-p">Ã°ÂÂÂ Pergunta</div>
         <div class="pergunta" id="c-pergunta"></div>
         <button class="btn-revelar" id="btn-rev" onclick="revelar()">
-          ð Revelar Resposta <span class="kbd-hint">EspaÃ§o</span>
+          Ã°ÂÂÂ Revelar Resposta <span class="kbd-hint">EspaÃÂ§o</span>
         </button>
         <div class="resposta-wrap" id="resp-wrap">
-          <div class="tag tag-r">â Resposta</div>
+          <div class="tag tag-r">Ã¢ÂÂ Resposta</div>
           <div class="resposta" id="c-resposta"></div>
           <div class="obs" id="c-obs" style="display:none">
-            <div class="obs-title">â ï¸ ObservaÃ§Ã£o importante</div>
+            <div class="obs-title">Ã¢ÂÂ Ã¯Â¸Â ObservaÃÂ§ÃÂ£o importante</div>
             <span id="c-obs-txt"></span>
           </div>
           <div class="avaliar">
-            <button class="btn-av av-ok" onclick="avaliar('v')">â Acertei<span class="av-key">tecla 1</span></button>
-            <button class="btn-av av-dv" onclick="avaliar('d')">â DÃºvida<span class="av-key">tecla 2</span></button>
-            <button class="btn-av av-no" onclick="avaliar('e')">â Errei<span class="av-key">tecla 3</span></button>
+            <button class="btn-av av-ok" onclick="avaliar('v')">Ã¢ÂÂ Acertei<span class="av-key">tecla 1</span></button>
+            <button class="btn-av av-dv" onclick="avaliar('d')">Ã¢ÂÂ DÃÂºvida<span class="av-key">tecla 2</span></button>
+            <button class="btn-av av-no" onclick="avaliar('e')">Ã¢ÂÂ Errei<span class="av-key">tecla 3</span></button>
           </div>
         </div>
       </div>
     </div>
     <div class="nav">
-      <button class="btn-nav" id="btn-ant" onclick="ir(-1)" disabled>â Anterior</button>
-      <button class="btn-nav" id="btn-prox" onclick="avancar()">PrÃ³ximo â</button>
+      <button class="btn-nav" id="btn-ant" onclick="ir(-1)" disabled>Ã¢ÂÂ Anterior</button>
+      <button class="btn-nav" id="btn-prox" onclick="avancar()">PrÃÂ³ximo Ã¢ÂÂ</button>
     </div>
-    <div class="teclado-info">â¨ï¸ <strong>EspaÃ§o</strong> revelar &nbsp;|&nbsp;<strong>1</strong> acertei &nbsp;<strong>2</strong> dÃºvida &nbsp;<strong>3</strong> errei &nbsp;|&nbsp;<strong>â â</strong> navegar</div>
+    <div class="teclado-info">Ã¢ÂÂ¨Ã¯Â¸Â <strong>EspaÃÂ§o</strong> revelar &nbsp;|&nbsp;<strong>1</strong> acertei &nbsp;<strong>2</strong> dÃÂºvida &nbsp;<strong>3</strong> errei &nbsp;|&nbsp;<strong>Ã¢ÂÂ Ã¢ÂÂ</strong> navegar</div>
   </div>
   <div id="tela-resultado">
-    <div class="res-titulo">ð SessÃ£o concluÃ­da!</div>
+    <div class="res-titulo">Ã°ÂÂÂ SessÃÂ£o concluÃÂ­da!</div>
     <div class="res-sub" id="res-sub"></div>
     <div class="res-pct" id="res-pct">0%</div>
     <div class="res-pct-lbl">de acertos</div>
     <div class="res-grid">
-      <div class="res-item ri-ok"><div class="num" id="r-v">0</div><div class="lbl">Acertei â</div></div>
-      <div class="res-item ri-dv"><div class="num" id="r-d">0</div><div class="lbl">DÃºvida â</div></div>
-      <div class="res-item ri-no"><div class="num" id="r-e">0</div><div class="lbl">Errei â</div></div>
+      <div class="res-item ri-ok"><div class="num" id="r-v">0</div><div class="lbl">Acertei Ã¢ÂÂ</div></div>
+      <div class="res-item ri-dv"><div class="num" id="r-d">0</div><div class="lbl">DÃÂºvida Ã¢ÂÂ</div></div>
+      <div class="res-item ri-no"><div class="num" id="r-e">0</div><div class="lbl">Errei Ã¢ÂÂ</div></div>
     </div>
     <div class="res-btns">
-      <button class="btn-res btn-res-all" onclick="reiniciar(false)">ð Refazer todos</button>
-      <button class="btn-res btn-res-err" onclick="reiniciar(true)">â SÃ³ erros e dÃºvidas</button>
+      <button class="btn-res btn-res-all" onclick="reiniciar(false)">Ã°ÂÂÂ Refazer todos</button>
+      <button class="btn-res btn-res-err" onclick="reiniciar(true)">Ã¢ÂÂ SÃÂ³ erros e dÃÂºvidas</button>
     </div>
   </div>
 </main>
 <div class="toast" id="toast"></div>
 <script>
 const DEMO_CARDS = [
-  { id:1, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Osso Temporal - Partes", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Quais sÃ£o as 4 partes do osso temporal?",
-    resposta:"â Escamosa\nâ MastÃ³idea\nâ Petrosa\nâ TimpÃ¢nica",
-    observacao:"O processo estiloide origina-se da parte timpÃ¢nica â pegadinha clÃ¡ssica em prova.", fonte:"ABORL-CCF 4Âª ed.", pagina:"12" },
-  { id:2, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Canal CarotÃ­deo", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Qual estrutura passa pelo canal carotÃ­deo da parte petrosa?",
-    resposta:"ArtÃ©ria carÃ³tida interna",
-    observacao:"Faz trajeto em S dentro do osso temporal â relevante em cirurgias da base do crÃ¢nio.", fonte:"ABORL-CCF 4Âª ed.", pagina:"13" },
-  { id:3, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Nervo Facial - Segmentos", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Quais sÃ£o os 3 segmentos intratemporais do nervo facial?",
-    resposta:"â LabirÃ­ntico (mais curto)\nâ TimpÃ¢nico (horizontal)\nâ Mastoideo (vertical)",
-    observacao:"O segmento labirÃ­ntico Ã© o mais estreito e menos vascularizado â ponto mais vulnerÃ¡vel a isquemia.", fonte:"ABORL-CCF 4Âª ed.", pagina:"18" },
-  { id:4, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"GÃ¢nglio Geniculado", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Onde fica o gÃ¢nglio geniculado do nervo facial?",
-    resposta:"Na junÃ§Ã£o entre os segmentos labirÃ­ntico e timpÃ¢nico, na primeira curva (joelho) do nervo facial intratemporal",
-    observacao:"", fonte:"ABORL-CCF 4Âª ed.", pagina:"18" },
-  { id:5, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"CÃ³clea - Espiras", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Quantas espiras tem a cÃ³clea humana?",
+  { id:1, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Osso Temporal - Partes", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Quais sÃÂ£o as 4 partes do osso temporal?",
+    resposta:"Ã¢ÂÂ Escamosa\nÃ¢ÂÂ MastÃÂ³idea\nÃ¢ÂÂ Petrosa\nÃ¢ÂÂ TimpÃÂ¢nica",
+    observacao:"O processo estiloide origina-se da parte timpÃÂ¢nica Ã¢ÂÂ pegadinha clÃÂ¡ssica em prova.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"12" },
+  { id:2, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Canal CarotÃÂ­deo", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Qual estrutura passa pelo canal carotÃÂ­deo da parte petrosa?",
+    resposta:"ArtÃÂ©ria carÃÂ³tida interna",
+    observacao:"Faz trajeto em S dentro do osso temporal Ã¢ÂÂ relevante em cirurgias da base do crÃÂ¢nio.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"13" },
+  { id:3, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Nervo Facial - Segmentos", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Quais sÃÂ£o os 3 segmentos intratemporais do nervo facial?",
+    resposta:"Ã¢ÂÂ LabirÃÂ­ntico (mais curto)\nÃ¢ÂÂ TimpÃÂ¢nico (horizontal)\nÃ¢ÂÂ Mastoideo (vertical)",
+    observacao:"O segmento labirÃÂ­ntico ÃÂ© o mais estreito e menos vascularizado Ã¢ÂÂ ponto mais vulnerÃÂ¡vel a isquemia.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"18" },
+  { id:4, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"GÃÂ¢nglio Geniculado", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Onde fica o gÃÂ¢nglio geniculado do nervo facial?",
+    resposta:"Na junÃÂ§ÃÂ£o entre os segmentos labirÃÂ­ntico e timpÃÂ¢nico, na primeira curva (joelho) do nervo facial intratemporal",
+    observacao:"", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"18" },
+  { id:5, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"CÃÂ³clea - Espiras", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Quantas espiras tem a cÃÂ³clea humana?",
     resposta:"2,5 espiras (aproximadamente)",
-    observacao:"A base processa frequÃªncias altas; o Ã¡pice processa frequÃªncias baixas.", fonte:"ABORL-CCF 4Âª ed.", pagina:"21" },
-  { id:6, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"CÃ³clea - Rampas", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Quais sÃ£o as 3 rampas (scalas) da cÃ³clea?",
-    resposta:"â Rampa vestibular (escala vestibuli) - perilinfa\nâ Rampa mÃ©dia (ducto coclear) - endolinfa\nâ Rampa timpÃ¢nica (escala tympani) - perilinfa",
-    observacao:"A rampa mÃ©dia Ã© a Ãºnica com endolinfa (rica em K+). As outras tÃªm perilinfa (rica em Na+). Pegadinha frequente.", fonte:"ABORL-CCF 4Âª ed.", pagina:"22" },
-  { id:7, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Parte MastÃ³idea", tipo:"Lacuna",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - A parte mastÃ³idea contÃ©m as cÃ©lulas ___, que se comunicam com a orelha mÃ©dia pelo ___.",
-    resposta:"cÃ©lulas mastÃ³ideas (pneumatizadas) ... antro mastoideo",
-    observacao:"O antro mastoideo Ã© o ponto de acesso cirÃºrgico na mastoidectomia.", fonte:"ABORL-CCF 4Âª ed.", pagina:"14" },
-  { id:8, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Canal Semicircular Lateral", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Em qual plano estÃ¡ o canal semicircular lateral?",
-    resposta:"Plano horizontal - inclinado ~30Â° em relaÃ§Ã£o ao plano de Frankfurt",
-    observacao:"Relevante para o nistagmo: o canal lateral Ã© estimulado pelo roll test (Dix-Hallpike modificado).", fonte:"ABORL-CCF 4Âª ed.", pagina:"25" },
-  { id:9, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"Membrana TimpÃ¢nica - Camadas", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Quais sÃ£o as 3 camadas da membrana timpÃ¢nica?",
-    resposta:"â Externa: epitÃ©lio escamoso (pele)\nâ MÃ©dia: fibras colÃ¡genas (circular + radial)\nâ Interna: mucosa da orelha mÃ©dia",
-    observacao:"A pars flaccida NÃO tem camada mÃ©dia fibrosa - por isso Ã© mais flÃ¡cida e onde colesteatomas se originam.", fonte:"ABORL-CCF 4Âª ed.", pagina:"16" },
-  { id:10, grande_area:"Otologia", capitulo:"Anatomia CirÃºrgica do Osso Temporal", subtema:"OssÃ­culos - ArticulaÃ§Ã£o", tipo:"PR",
-    pergunta:"Otologia - Anatomia CirÃºrgica do Osso Temporal - Como se chama a articulaÃ§Ã£o entre a bigorna e o estribo?",
-    resposta:"ArticulaÃ§Ã£o incudoestapediana",
-    observacao:"Mais frequentemente lesada em traumatismos de orelha mÃ©dia - perda auditiva condutiva.", fonte:"ABORL-CCF 4Âª ed.", pagina:"17" }
+    observacao:"A base processa frequÃÂªncias altas; o ÃÂ¡pice processa frequÃÂªncias baixas.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"21" },
+  { id:6, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"CÃÂ³clea - Rampas", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Quais sÃÂ£o as 3 rampas (scalas) da cÃÂ³clea?",
+    resposta:"Ã¢ÂÂ Rampa vestibular (escala vestibuli) - perilinfa\nÃ¢ÂÂ Rampa mÃÂ©dia (ducto coclear) - endolinfa\nÃ¢ÂÂ Rampa timpÃÂ¢nica (escala tympani) - perilinfa",
+    observacao:"A rampa mÃÂ©dia ÃÂ© a ÃÂºnica com endolinfa (rica em K+). As outras tÃÂªm perilinfa (rica em Na+). Pegadinha frequente.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"22" },
+  { id:7, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Parte MastÃÂ³idea", tipo:"Lacuna",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - A parte mastÃÂ³idea contÃÂ©m as cÃÂ©lulas ___, que se comunicam com a orelha mÃÂ©dia pelo ___.",
+    resposta:"cÃÂ©lulas mastÃÂ³ideas (pneumatizadas) ... antro mastoideo",
+    observacao:"O antro mastoideo ÃÂ© o ponto de acesso cirÃÂºrgico na mastoidectomia.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"14" },
+  { id:8, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Canal Semicircular Lateral", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Em qual plano estÃÂ¡ o canal semicircular lateral?",
+    resposta:"Plano horizontal - inclinado ~30ÃÂ° em relaÃÂ§ÃÂ£o ao plano de Frankfurt",
+    observacao:"Relevante para o nistagmo: o canal lateral ÃÂ© estimulado pelo roll test (Dix-Hallpike modificado).", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"25" },
+  { id:9, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"Membrana TimpÃÂ¢nica - Camadas", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Quais sÃÂ£o as 3 camadas da membrana timpÃÂ¢nica?",
+    resposta:"Ã¢ÂÂ Externa: epitÃÂ©lio escamoso (pele)\nÃ¢ÂÂ MÃÂ©dia: fibras colÃÂ¡genas (circular + radial)\nÃ¢ÂÂ Interna: mucosa da orelha mÃÂ©dia",
+    observacao:"A pars flaccida NÃÂO tem camada mÃÂ©dia fibrosa - por isso ÃÂ© mais flÃÂ¡cida e onde colesteatomas se originam.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"16" },
+  { id:10, grande_area:"Otologia", capitulo:"Anatomia CirÃÂºrgica do Osso Temporal", subtema:"OssÃÂ­culos - ArticulaÃÂ§ÃÂ£o", tipo:"PR",
+    pergunta:"Otologia - Anatomia CirÃÂºrgica do Osso Temporal - Como se chama a articulaÃÂ§ÃÂ£o entre a bigorna e o estribo?",
+    resposta:"ArticulaÃÂ§ÃÂ£o incudoestapediana",
+    observacao:"Mais frequentemente lesada em traumatismos de orelha mÃÂ©dia - perda auditiva condutiva.", fonte:"ABORL-CCF 4ÃÂª ed.", pagina:"17" }
 ];
 let TODOS=[],deck=[],idx=0,revelado=false,placar={v:0,d:0,e:0},avMap={},hoje=0,embaralhado=false;
-async function carregarCards(){if(MODO_DEMO){document.getElementById('demo-badge').style.display='';TDODOS=DEMO_CARDS;iniciarApp();return}try{const{createClient}=supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY);const{data,error}=await db.from('flashcards').select('*').order('id',{ascending:true});if(error)throw error;TDODOS=dta;iniciarApp()}catch(err){console.error('Erro Supabase:',err);document.getElementById('loading').innerHTML=`<div style="text-align:center;padding:40px;color:#ef4444">â Erro ao carregar cards<br><small style="color:#64748b;margin-top:8px;display:block">${err.message}</small><button onclick="carregarCards()" style="margin-top:16px;padding:10px 20px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;cursor:pointer">Tentar novamente</button></div>`}}
+async function carregarCards(){if(MODO_DEMO){document.getElementById('demo-badge').style.display='';TODOS=DEMO_CARDS;iniciarApp();return}try{const{createClient}=supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY);const{data,error}=await db.from('flashcards').select('*').order('id',{ascending:true});if(error)throw error;TODOS=data;iniciarApp()}catch(err){console.error('Erro Supabase:',err);document.getElementById('loading').innerHTML=`<div style="text-align:center;padding:40px;color:#ef4444">Ã¢ÂÂ Erro ao carregar cards<br><small style="color:#64748b;margin-top:8px;display:block">${err.message}</small><button onclick="carregarCards()" style="margin-top:16px;padding:10px 20px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;cursor:pointer">Tentar novamente</button></div>`}}
 function iniciarApp(){document.getElementById('loading').style.display='none';document.getElementById('filtros').style.display='';document.getElementById('barra-prog').style.display='';document.getElementById('tela-card').style.display='';initFiltros();iniciar(TODOS)}
-function initFiltros(){const areas=[...new Set(TODOS.map(c=>c.grande_area))].sort();const caps=[...new Set(TODOS.map(c=>c.capitulo))].sort();const sa=document.getElementById('f-area');const sc=document.getElementById('f-cap');areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sa.appendChild(o)});caps.forEach(c=>{const o=document.createElement('option');o.value=c;oo.textContent=c;sc.appendChild(o)})}
+function initFiltros(){const areas=[...new Set(TODOS.map(c=>c.grande_area))].sort();const caps=[...new Set(TODOS.map(c=>c.capitulo))].sort();const sa=document.getElementById('f-area');const sc=document.getElementById('f-cap');areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sa.appendChild(o)});caps.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sc.appendChild(o)})}
 function filtrar(){const area=document.getElementById('f-area').value;const cap=document.getElementById('f-cap').value;const tipo=document.getElementById('f-tipo').value;let lista=TODOS;if(area)lista=lista.filter(c=>c.grande_area===area);if(cap)lista=lista.filter(c=>c.capitulo===cap);if(tipo)lista=lista.filter(c=>c.tipo===tipo);if(embaralhado)lista=shuffle([...lista]);iniciar(lista)}
 function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
-function embaralhar(){embaralhado=!embaralhado;document.getElementById('btn-emb').textContent=embaralhado?'ð Em ordem':'ð Embaralhar';filtrar();toast(embaralhado?'Cards embaralhados ð':'Ordem original restaurada')}
-function iniciar(lista){deck=lista;idx=0;revelado=false;placar={v:0,d:0,e:0};atMap={};document.getElementById('tela-resultado').classList.remove('show');document.getElementById('tela-card').style.display='';atualizarHeader();renderCard()}
-function renderCard(){if(!deck.length){document.getElementById('tela-card').innerHTML='<div class="empty">ð­ Nenhum card encontrado para este filtro.</div>';return}const c=deck[idx];document.getElementById('c-id').textContent=`#${c.id}`;document.getElementById('c-tipo').textContent=c.tipo;document.getElementById('c-area').textContent=c.grande_area;document.getElementById('c-subtema').textContent=c.subtema||'';document.getElementById('c-fonte').textContent=c.pagina?`p.${c.pagina}`:'';document.getElementById('c-pergunta').textContent=c.pergunta;document.getElementById('c-resposta').textContent=c.resposta;const obs=c.observacao||'';const obsEl=document.getElementById('c-obs');if(obs.trim()){obsEl.style.display='block';document.getElementById('c-obs-txt').textContent=obs}else{obsEl.style.display='none'}revelado=false;document.getElementById('resp-wrap').classList.remove('show');document.getElementById('btn-rev').style.display='flex';const el=document.getElementById('card-el');el.style.animation='none';void el.offsetHeight;el.style.animation='';atualizarProgresso();document.getElementById('btn-ant').disabled=idx===0;document.getElementById('btn-prox').textContent=idx===deck.length-1?'Ver resultado â':'PrÃ³ximo â'}
+function embaralhar(){embaralhado=!embaralhado;document.getElementById('btn-emb').textContent=embaralhado?'Ã°ÂÂÂ Em ordem':'Ã°ÂÂÂ Embaralhar';filtrar();toast(embaralhado?'Cards embaralhados Ã°ÂÂÂ':'Ordem original restaurada')}
+function iniciar(lista){deck=lista;idx=0;revelado=false;placar={v:0,d:0,e:0};avMap={};document.getElementById('tela-resultado').classList.remove('show');document.getElementById('tela-card').style.display='';atualizarHeader();renderCard()}
+function renderCard(){if(!deck.length){document.getElementById('tela-card').innerHTML='<div class="empty">Ã°ÂÂÂ­ Nenhum card encontrado para este filtro.</div>';return}const c=deck[idx];document.getElementById('c-id').textContent=`#${c.id}`;document.getElementById('c-tipo').textContent=c.tipo;document.getElementById('c-area').textContent=c.grande_area;document.getElementById('c-subtema').textContent=c.subtema||'';document.getElementById('c-fonte').textContent=c.pagina?`p.${c.pagina}`:'';document.getElementById('c-pergunta').textContent=c.pergunta;document.getElementById('c-resposta').textContent=c.resposta;const obs=c.observacao||'';const obsEl=document.getElementById('c-obs');if(obs.trim()){obsEl.style.display='block';document.getElementById('c-obs-txt').textContent=obs}else{obsEl.style.display='none'}revelado=false;document.getElementById('resp-wrap').classList.remove('show');document.getElementById('btn-rev').style.display='flex';const el=document.getElementById('card-el');el.style.animation='none';void el.offsetHeight;el.style.animation='';atualizarProgresso();document.getElementById('btn-ant').disabled=idx===0;document.getElementById('btn-prox').textContent=idx===deck.length-1?'Ver resultado Ã¢ÂÂ':'PrÃÂ³ximo Ã¢ÂÂ'}
 function atualizarProgresso(){const total=deck.length,atual=idx+1;const pct=total?Math.round((atual/total)*100):0;document.getElementById('prog-txt').textContent=`Card ${atual} de ${total}`;document.getElementById('prog-pct').textContent=`${pct}%`;document.getElementById('prog-fill').style.width=pct+'%';document.getElementById('mp-v').textContent=placar.v;document.getElementById('mp-d').textContent=placar.d;document.getElementById('mp-e').textContent=placar.e}
 function atualizarHeader(){document.getElementById('h-total').textContent=`${TODOS.length} cards`;document.getElementById('h-hoje').textContent=`${hoje} hoje`}
 function revelar(){revelado=true;document.getElementById('resp-wrap').classList.add('show');document.getElementById('btn-rev').style.display='none'}
 function avaliar(tipo){if(!revelado){revelar();return}const id=deck[idx].id;const ant=avMap[id];if(ant)placar[ant]--;avMap[id]=tipo;placar[tipo]++;hoje++;atualizarHeader();avancar()}
 function avancar(){if(idx>=deck.length-1){mostrarResultado();return}idx++;renderCard()}
 function ir(delta){const n=idx+delta;if(n<0||n>=deck.length)return;idx=n;renderCard()}
-function mostrarResultado(){document.getElementById('tela-card').style.display='none';const total=placar.v+placar.d+placar.e;const pct=total?Math.round((placar.v/total)*100):0;document.getElementById('r-v').textContent=placar.v;document.getElementById('placar.d').textContent=placar.d;document.getElementById('placar.e').textContent=placar.e;document.getElementById('res-pct').textContent=`${pct}%`;document.getElementById('res-sub').textContent=`${total} cards avaliados - ${deck.length} no deck`;document.getElementById('tela-resultado').classList.add('show');atualizarProgresso()}
-function reiniciar(apenasErros){let lista=[...deck];if(apenasErros){const ids=Object.entries(avMap).filter(([,v])=>v==='d'||v==='e').map(([k])=>parseInt(k));lista=deck.filter(c=>ids.includes(c.id));if(!lista.length){toast('Nenhum erro ou dÃºvida! ð');return}}iniciar(lista)}
+function mostrarResultado(){document.getElementById('tela-card').style.display='none';const total=placar.v+placar.d+placar.e;const pct=total?Math.round((placar.v/total)*100):0;document.getElementById('r-v').textContent=placar.v;document.getElementById('r-d').textContent=placar.d;document.getElementById('r-e').textContent=placar.e;document.getElementById('res-pct').textContent=`${pct}%`;document.getElementById('res-sub').textContent=`${total} cards avaliados - ${deck.length} no deck`;document.getElementById('tela-resultado').classList.add('show');atualizarProgresso()}
+function reiniciar(apenasErros){let lista=[...deck];if(apenasErros){const ids=Object.entries(avMap).filter(([,v])=>v==='d'||v==='e').map(([k])=>parseInt(k));lista=deck.filter(c=>ids.includes(c.id));if(!lista.length){toast('Nenhum erro ou dÃÂºvida! Ã°ÂÂÂ');return}}iniciar(lista)}
 let _tt;function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),1800)}
 document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!revelado)revelar()}else if(e.key==='1'&& revelado)avaliar('v');else if(e.key==='2'&& revelado)avaliar('d');else if(e.key==='3'&& revelado)avaliar('e');else if(e.key==='ArrowRight')avancar();else if(e.key==='ArrowLeft')ir(-1)});
 carregarCards();
