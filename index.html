@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORL Flash — Flashcards de Otorrinolaringologia</title>
+
+<!-- ============================================================
+     CONFIGURAÇÃO SUPABASE — preencha após criar o projeto
+     ============================================================
+     1. Acesse: https://supabase.com/dashboard/project/SEU_PROJETO/settings/api
+     2. Copie "Project URL" → SUPABASE_URL
+     3. Copie "anon public" → SUPABASE_KEY
+     ============================================================ -->
+<script>
+  const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";   // ← preencher
+  const SUPABASE_KEY = "SEU_ANON_KEY_AQUI";                 // ← preencher
+  const MODO_DEMO    = SUPABASE_URL.includes("SEU_PROJETO"); // true = usa dados locais
+</script>
+
+<!-- Supabase JS SDK via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --azul:      #1a3a5c;
+    --azul-light: #2563eb;
+    --verde:      #16a34a;
+    --am-bg:      #fef9c3;
+    --am-bd:      #f59e0b;
+    --cinza-bg:   #f1f5f9;
+    --cinza-bd:   #e2e8f0;
+    --texto:      #1e293b;
+    --sub:        #64748b;
+    --r:          14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--cinza-bg);
+    color: var(--texto);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    background: var(--azul);
+    color: #fff;
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 200;
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  }
+  .logo { font-size: 1.35rem; font-weight: 800; letter-spacing: -.5px; }
+  .logo span { color: #60a5fa; }
+  .header-stats { display: flex; gap: 10px; }
+  .stat-pill {
+    background: rgba(255,255,255,.12);
+    border-radius: 99px; padding: 4px 10px;
+    font-size: .78rem; font-weight: 600;
+  }
+  .demo-badge {
+    background: #f59e0b; color: #1a1a1a;
+    border-radius: 99px; padding: 4px 10px;
+    font-size: .72rem; font-weight: 700;
+  }
+  #loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 60vh; gap: 16px; color: var(--sub);
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--cinza-bd);
+    border-top-color: var(--azul-light);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .filtros {
+    background: #fff;
+    border-bottom: 1px solid var(--cinza-bd);
+    padding: 10px 16px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .filtros label { font-size: .8rem; color: var(--sub); font-weight: 600; }
+  .filtros select {
+    border: 1.5px solid var(--cinza-bd); border-radius: 8px;
+    padding: 5px 28px 5px 10px; font-size: .82rem; color: var(--texto);
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+    appearance: none; cursor: pointer;
+  }
+  .btn-shuffle {
+    margin-left: auto; background: var(--azul); color: #fff;
+    border: none; border-radius: 8px; padding: 6px 14px;
+    font-size: .82rem; font-weight: 600; cursor: pointer;
+  }
+  .progresso {
+    background: #fff; padding: 8px 16px 10px;
+    border-bottom: 1px solid var(--cinza-bd);
+  }
+  .prog-info { display: flex; justify-content: space-between; font-size: .78rem; color: var(--sub); margin-bottom: 5px; }
+  .prog-track { background: var(--cinza-bd); border-radius: 99px; height: 5px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--azul-light), #06b6d4); transition: width .3s ease; }
+  .mini-placar { display: flex; gap: 12px; margin-top: 6px; font-size: .75rem; }
+  .mp { display: flex; align-items: center; gap: 3px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-v { background: #22c55e; } .dot-d { background: #f59e0b; } .dot-e { background: #ef4444; }
+  main { max-width: 680px; margin: 0 auto; padding: 20px 14px 90px; }
+  .card { background: #fff; border-radius: var(--r); box-shadow: 0 2px 16px rgba(0,0,0,.07); overflow: hidden; animation: cardIn .2s ease; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .card-head { background: var(--cinza-bg); border-bottom: 1px solid var(--cinza-bd); padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; letter-spacing: .3px; }
+  .badge-num { background: var(--cinza-bd); color: var(--sub); }
+  .badge-tipo { background: #ede9fe; color: #7c3aed; text-transform: uppercase; }
+  .badge-area { background: #dbeafe; color: #1e40af; }
+  .card-subtema { font-size: .76rem; color: var(--sub); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .card-fonte { font-size: .7rem; color: var(--sub); opacity: .6; }
+  .card-body { padding: 20px 18px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: .7rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .tag-p { background: #dbeafe; color: var(--azul-light); }
+  .tag-r { background: #dcfce7; color: var(--verde); }
+  .pergunta { font-size: 1rem; line-height: 1.6; font-weight: 500; color: var(--texto); margin-bottom: 18px; }
+  .btn-revelar { width: 100%; padding: 13px; background: var(--azul-light); color: #fff; border: none; border-radius: 10px; font-size: .95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .resposta-wrap { display: none; border-top: 1px solid var(--cinza-bd); padding-top: 16px; margin-top: 16px; }
+  .resposta-wrap.show { display: block; }
+  .resposta { font-size: .95rem; line-height: 1.7; white-space: pre-line; color: var(--texto); margin-bottom: 12px; }
+  .obs { background: var(--am-bg); border: 1.5px solid var(--am-bd); border-radius: 10px; padding: 12px 14px; font-size: .87rem; line-height: 1.55; color: #78350f; margin-bottom: 14px; }
+  .obs-title { font-size: .76rem; font-weight: 700; color: #92400e; margin-bottom: 5px; }
+  .avaliar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px; }
+  .btn-av { padding: 11px 6px; border: 1.5px solid; border-radius: 10px; font-size: .88rem; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .av-key { font-size: .65rem; opacity: .55; font-weight: 400; }
+  .av-ok { background: #dcfce7; color: #15803d; border-color: #86efac; }
+  .av-dv { background: #fef9c3; color: #92400e; border-color: #fde68a; }
+  .av-no { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+  .nav { display: flex; gap: 10px; margin-top: 18px; }
+  .btn-nav { flex: 1; padding: 11px; border: 1.5px solid var(--cinza-bd); background: #fff; border-radius: 10px; font-size: .88rem; font-weight: 600; cursor: pointer; color: var(--texto); }
+  .btn-nav:disabled { opacity: .35; cursor: default; }
+  .teclado-info { text-align: center; font-size: .72rem; color: var(--sub); margin-top: 12px; opacity: .7; }
+  #tela-resultado { display: none; text-align: center; padding: 40px 16px; }
+  #tela-resultado.show { display: block; }
+  .res-titulo { font-size: 1.7rem; color: var(--azul); font-weight: 800; margin-bottom: 6px; }
+  .res-sub { font-size: .9rem; color: var(--sub); margin-bottom: 24px; }
+  .res-pct { font-size: 3rem; font-weight: 900; color: var(--azul-light); margin-bottom: 2px; }
+  .res-pct-lbl { font-size: .82rem; color: var(--sub); margin-bottom: 24px; }
+  .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .res-item { border-radius: 14px; padding: 18px 10px; font-weight: 700; }
+  .res-item .num { font-size: 2.2rem; }
+  .res-item .lbl { font-size: .78rem; margin-top: 2px; }
+  .ri-ok { background: #dcfce7; color: #15803d; } .ri-dv { background: #fef9c3; color: #92400e; } .ri-no { background: #fee2e2; color: #b91c1c; }
+  .res-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .btn-res { padding: 13px 28px; border-radius: 12px; font-size: .95rem; font-weight: 700; cursor: pointer; border: none; }
+  .btn-res-all { background: var(--azul); color: #fff; }
+  .btn-res-err { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fca5a5; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--sub); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--azul); color: #fff; padding: 10px 22px; border-radius: 99px; font-size: .85rem; font-weight: 600; opacity: 0; transition: opacity .2s; zindex:999; pointer-events:none; }
+  .toast.show { opacity: 1; }
+  @media(max-width:480px){ .kbd-hint,.av-key,.teclado-info{display:none} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ORL <span>Flash</span></div>
+  <div class="header-stats">
+    <span class="stat-pill" id="h-total">…</span>
+    <span class="stat-pill" id="h-hoje">0 hoje</span>
+    <span class="demo-badge" id="demo-badge" style="display:none">DEMO</span>
+  </div>
+</header>
+
+<div class="filtros" id="filtros" style="display:none">
+  <label>Área</label>
+  <select id="f-area" onchange="filtrar()"><option value="">Todas</option></select>
+  <label>Capítulo</label>
+  <select id="f-cap"  onchange="filtrar()"><option value="">Todos</option></select>
+  <label>Tipo</label>
+  <select id="f-tipo" onchange="filtrar()">
+    <option value="">Todos</option>
+    <option value="PR">P&amp;R</option>
+    <option value="Lacuna">Lacuna</option>
+    <option value="Imagem">Imagem</option>
+    <option value="ContextoClinico">Contexto Clínico</option>
+  </select>
+  <button class="btn-shuffle" id="btn-emb" onclick="embaralhar()">🔀 Embaralhar</button>
+</div>
+
+<div class="progresso" id="barra-prog" style="display:none">
+  <div class="prog-info"><span id="prog-txt">Card 1 de 0</span><span id="prog-pct">0%</span></div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="mini-placar">
+    <div class="mp"><span class="dot dot-v"></span><span id="mp-v">0</span> acertei</div>
+    <div class="mp"><span class="dot dot-d"></span><span id="mp-d">0</span> dúvida</div>
+    <div class="mp"><span class="dot dot-e"></span><span id="mp-e">0</span> errei</div>
+  </div>
+</div>
+
+<main>
+  <div id="loading"><div class="spinner"></div><span>Carregando flashcards…</span></div>
+  <div id="tela-card" style="display:none">
+    <div class="card" id="card-el">
+      <div class="card-head">
+        <span class="badge badge-num"  id="c-id">#1</span>
+        <span class="badge badge-tipo" id="c-tipo">PR</span>
+        <span class="badge badge-area" id="c-area">Otologia</span>
+        <span class="card-subtema"     id="c-subtema"></span>
+        <span class="card-fonte"       id="c-fonte"></span>
+      </div>
+      <div class="card-body">
+        <div class="tag tag-p">📚 Pergunta</div>
+        <div class="pergunta" id="c-pergunta"></div>
+        <button class="btn-revelar" id="btn-rev" onclick="revelar()">
+          👁 Revelar Resposta <span class="kbd-hint">Espaço</span>
+        </button>
+        <div class="resposta-wrap" id="resp-wrap">
+          <div class="tag tag-r">✅ Resposta</div>
+          <div class="resposta" id="c-resposta"></div>
+          <div class="obs" id="c-obs" style="display:none">
+            <div class="obs-title">⚠️ Observação importante</div>
+            <span id="c-obs-txt"></span>
+          </div>
+          <div class="avaliar">
+            <button class="btn-av av-ok" onclick="avaliar('v')">✅ Acertei<span class="av-key">tecla 1</span></button>
+            <button class="btn-av av-dv" onclick="avaliar('d')">❓ Dúvida<span class="av-key">tecla 2</span></button>
+            <button class="btn-av av-no" onclick="avaliar('e')">❌ Errei<span class="av-key">tecla 3</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn-nav" id="btn-ant" onclick="ir(-1)" disabled>← Anterior</button>
+      <button class="btn-nav" id="btn-prox" onclick="avancar()">Próximo →</button>
+    </div>
+    <div class="teclado-info">⌨️ <strong>Espaço</strong> revelar &nbsp;|&nbsp;<strong>1</strong> acertei &nbsp;<strong>2</strong> dúvida &nbsp;<strong>3</strong> errei &nbsp;|&nbsp;<strong>← →</strong> navegar</div>
+  </div>
+  <div id="tela-resultado">
+    <div class="res-titulo">🎉 Sessão concluída!</div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-pct" id="res-pct">0%</div>
+    <div class="res-pct-lbl">de acertos</div>
+    <div class="res-grid">
+      <div class="res-item ri-ok"><div class="num" id="r-v">0</div><div class="lbl">Acertei ✅</div></div>
+      <div class="res-item ri-dv"><div class="num" id="r-d">0</div><div class="lbl">Dúvida ❓</div></div>
+      <div class="res-item ri-no"><div class="num" id="r-e">0</div><div class="lbl">Errei ❌</div></div>
+    </div>
+    <div class="res-btns">
+      <button class="btn-res btn-res-all" onclick="reiniciar(false)">🔄 Refazer todos</button>
+      <button class="btn-res btn-res-err" onclick="reiniciar(true)">❌ Só erros e dúvidas</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const DEMO_CARDS = [
+  { id:1, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Osso Temporal - Partes", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 4 partes do osso temporal?",
+    resposta:"⇒ Escamosa\n⇒ Mastóidea\n⇒ Petrosa\n⇒ Timpânica",
+    observacao:"O processo estiloide origina-se da parte timpânica — pegadinha clássica em prova.", fonte:"ABORL-CCF 4ª ed.", pagina:"12" },
+  { id:2, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Canal Carotídeo", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Qual estrutura passa pelo canal carotídeo da parte petrosa?",
+    resposta:"Artéria carótida interna",
+    observacao:"Faz trajeto em S dentro do osso temporal — relevante em cirurgias da base do crânio.", fonte:"ABORL-CCF 4ª ed.", pagina:"13" },
+  { id:3, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Nervo Facial - Segmentos", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são os 3 segmentos intratemporais do nervo facial?",
+    resposta:"⇒ Labiríntico (mais curto)\n⇒ Timpânico (horizontal)\n⇒ Mastoideo (vertical)",
+    observacao:"O segmento labiríntico é o mais estreito e menos vascularizado — ponto mais vulnerável a isquemia.", fonte:"ABORL-CCF 4ª ed.", pagina:"18" },
+  { id:4, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Gânglio Geniculado", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Onde fica o gânglio geniculado do nervo facial?",
+    resposta:"Na junção entre os segmentos labiríntico e timpânico, na primeira curva (joelho) do nervo facial intratemporal",
+    observacao:"", fonte:"ABORL-CCF 4ª ed.", pagina:"18" },
+  { id:5, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Cóclea - Espiras", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quantas espiras tem a cóclea humana?",
+    resposta:"2,5 espiras (aproximadamente)",
+    observacao:"A base processa frequências altas; o ápice processa frequências baixas.", fonte:"ABORL-CCF 4ª ed.", pagina:"21" },
+  { id:6, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Cóclea - Rampas", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 3 rampas (scalas) da cóclea?",
+    resposta:"⇒ Rampa vestibular (escala vestibuli) - perilinfa\n⇒ Rampa média (ducto coclear) - endolinfa\n⇒ Rampa timpânica (escala tympani) - perilinfa",
+    observacao:"A rampa média é a única com endolinfa (rica em K+). As outras têm perilinfa (rica em Na+). Pegadinha frequente.", fonte:"ABORL-CCF 4ª ed.", pagina:"22" },
+  { id:7, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Parte Mastóidea", tipo:"Lacuna",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - A parte mastóidea contém as células ___, que se comunicam com a orelha média pelo ___.",
+    resposta:"células mastóideas (pneumatizadas) ... antro mastoideo",
+    observacao:"O antro mastoideo é o ponto de acesso cirúrgico na mastoidectomia.", fonte:"ABORL-CCF 4ª ed.", pagina:"14" },
+  { id:8, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Canal Semicircular Lateral", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Em qual plano está o canal semicircular lateral?",
+    resposta:"Plano horizontal - inclinado ~30° em relação ao plano de Frankfurt",
+    observacao:"Relevante para o nistagmo: o canal lateral é estimulado pelo roll test (Dix-Hallpike modificado).", fonte:"ABORL-CCF 4ª ed.", pagina:"25" },
+  { id:9, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Membrana Timpânica - Camadas", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 3 camadas da membrana timpânica?",
+    resposta:"⇒ Externa: epitélio escamoso (pele)\n⇒ Média: fibras colágenas (circular + radial)\n⇒ Interna: mucosa da orelha média",
+    observacao:"A pars flaccida NÃO tem camada média fibrosa - por isso é mais flácida e onde colesteatomas se originam.", fonte:"ABORL-CCF 4ª ed.", pagina:"16" },
+  { id:10, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Ossículos - Articulação", tipo:"PR",
+    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Como se chama a articulação entre a bigorna e o estribo?",
+    resposta:"Articulação incudoestapediana",
+    observacao:"Mais frequentemente lesada em traumatismos de orelha média - perda auditiva condutiva.", fonte:"ABORL-CCF 4ª ed.", pagina:"17" }
+];
+let TODOS=[],deck=[],idx=0,revelado=false,placar={v:0,d:0,e:0},avMap={},hoje=0,embaralhado=false;
+async function carregarCards(){if(MODO_DEMO){document.getElementById('demo-badge').style.display='';TDODOS=DEMO_CARDS;iniciarApp();return}try{const{createClient}=supabase;const db=createClient(SUPABASE_URL,SUPABASE_KEY);const{data,error}=await db.from('flashcards').select('*').order('id',{ascending:true});if(error)throw error;TDODOS=dta;iniciarApp()}catch(err){console.error('Erro Supabase:',err);document.getElementById('loading').innerHTML=`<div style="text-align:center;padding:40px;color:#ef4444">❌ Erro ao carregar cards<br><small style="color:#64748b;margin-top:8px;display:block">${err.message}</small><button onclick="carregarCards()" style="margin-top:16px;padding:10px 20px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;cursor:pointer">Tentar novamente</button></div>`}}
+function iniciarApp(){document.getElementById('loading').style.display='none';document.getElementById('filtros').style.display='';document.getElementById('barra-prog').style.display='';document.getElementById('tela-card').style.display='';initFiltros();iniciar(TODOS)}
+function initFiltros(){const areas=[...new Set(TODOS.map(c=>c.grande_area))].sort();const caps=[...new Set(TODOS.map(c=>c.capitulo))].sort();const sa=document.getElementById('f-area');const sc=document.getElementById('f-cap');areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sa.appendChild(o)});caps.forEach(c=>{const o=document.createElement('option');o.value=c;oo.textContent=c;sc.appendChild(o)})}
+function filtrar(){const area=document.getElementById('f-area').value;const cap=document.getElementById('f-cap').value;const tipo=document.getElementById('f-tipo').value;let lista=TODOS;if(area)lista=lista.filter(c=>c.grande_area===area);if(cap)lista=lista.filter(c=>c.capitulo===cap);if(tipo)lista=lista.filter(c=>c.tipo===tipo);if(embaralhado)lista=shuffle([...lista]);iniciar(lista)}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function embaralhar(){embaralhado=!embaralhado;document.getElementById('btn-emb').textContent=embaralhado?'🔀 Em ordem':'🔀 Embaralhar';filtrar();toast(embaralhado?'Cards embaralhados 🔀':'Ordem original restaurada')}
+function iniciar(lista){deck=lista;idx=0;revelado=false;placar={v:0,d:0,e:0};atMap={};document.getElementById('tela-resultado').classList.remove('show');document.getElementById('tela-card').style.display='';atualizarHeader();renderCard()}
+function renderCard(){if(!deck.length){document.getElementById('tela-card').innerHTML='<div class="empty">📭 Nenhum card encontrado para este filtro.</div>';return}const c=deck[idx];document.getElementById('c-id').textContent=`#${c.id}`;document.getElementById('c-tipo').textContent=c.tipo;document.getElementById('c-area').textContent=c.grande_area;document.getElementById('c-subtema').textContent=c.subtema||'';document.getElementById('c-fonte').textContent=c.pagina?`p.${c.pagina}`:'';document.getElementById('c-pergunta').textContent=c.pergunta;document.getElementById('c-resposta').textContent=c.resposta;const obs=c.observacao||'';const obsEl=document.getElementById('c-obs');if(obs.trim()){obsEl.style.display='block';document.getElementById('c-obs-txt').textContent=obs}else{obsEl.style.display='none'}revelado=false;document.getElementById('resp-wrap').classList.remove('show');document.getElementById('btn-rev').style.display='flex';const el=document.getElementById('card-el');el.style.animation='none';void el.offsetHeight;el.style.animation='';atualizarProgresso();document.getElementById('btn-ant').disabled=idx===0;document.getElementById('btn-prox').textContent=idx===deck.length-1?'Ver resultado →':'Próximo →'}
+function atualizarProgresso(){const total=deck.length,atual=idx+1;const pct=total?Math.round((atual/total)*100):0;document.getElementById('prog-txt').textContent=`Card ${atual} de ${total}`;document.getElementById('prog-pct').textContent=`${pct}%`;document.getElementById('prog-fill').style.width=pct+'%';document.getElementById('mp-v').textContent=placar.v;document.getElementById('mp-d').textContent=placar.d;document.getElementById('mp-e').textContent=placar.e}
+function atualizarHeader(){document.getElementById('h-total').textContent=`${TODOS.length} cards`;document.getElementById('h-hoje').textContent=`${hoje} hoje`}
+function revelar(){revelado=true;document.getElementById('resp-wrap').classList.add('show');document.getElementById('btn-rev').style.display='none'}
+function avaliar(tipo){if(!revelado){revelar();return}const id=deck[idx].id;const ant=avMap[id];if(ant)placar[ant]--;avMap[id]=tipo;placar[tipo]++;hoje++;atualizarHeader();avancar()}
+function avancar(){if(idx>=deck.length-1){mostrarResultado();return}idx++;renderCard()}
+function ir(delta){const n=idx+delta;if(n<0||n>=deck.length)return;idx=n;renderCard()}
+function mostrarResultado(){document.getElementById('tela-card').style.display='none';const total=placar.v+placar.d+placar.e;const pct=total?Math.round((placar.v/total)*100):0;document.getElementById('r-v').textContent=placar.v;document.getElementById('placar.d').textContent=placar.d;document.getElementById('placar.e').textContent=placar.e;document.getElementById('res-pct').textContent=`${pct}%`;document.getElementById('res-sub').textContent=`${total} cards avaliados - ${deck.length} no deck`;document.getElementById('tela-resultado').classList.add('show');atualizarProgresso()}
+function reiniciar(apenasErros){let lista=[...deck];if(apenasErros){const ids=Object.entries(avMap).filter(([,v])=>v==='d'||v==='e').map(([k])=>parseInt(k));lista=deck.filter(c=>ids.includes(c.id));if(!lista.length){toast('Nenhum erro ou dúvida! 🎉');return}}iniciar(lista)}
+let _tt;function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),1800)}
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!revelado)revelar()}else if(e.key==='1'&& revelado)avaliar('v');else if(e.key==='2'&& revelado)avaliar('d');else if(e.key==='3'&& revelado)avaliar('e');else if(e.key==='ArrowRight')avancar();else if(e.key==='ArrowLeft')ir(-1)});
+carregarCards();
+</script>
+</body>
+</html>
