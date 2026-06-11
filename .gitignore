@@ -1,0 +1,8 @@
+# CSVs com conteúdo — fão enviar para o GitHub
+data/*.csv
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.pyc
+__pycache__/
