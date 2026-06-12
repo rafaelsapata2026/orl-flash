@@ -61,6 +61,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .login-error.show{display:block;}
 .login-success{background:#dcfce7;color:#15803d;border-radius:8px;padding:10px 14px;font-size:.85rem;margin-bottom:14px;display:none;}
 .login-success.show{display:block;}
+.login-switch{text-align:center;margin-top:18px;font-size:.85rem;color:var(--sub);}
+.login-switch a{color:var(--baby2);text-decoration:none;font-weight:600;}
+.login-switch a:hover{color:var(--pink);}
+#cadastro-form-wrap{display:none;}
+#cadastro-form-wrap.show{display:block;}
 
 /* ── APP LAYOUT ── */
 #app{display:none;}
@@ -171,7 +176,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .badge-num{background:var(--border);color:var(--sub);}
 .badge-tipo{background:#ede9fe;color:#7c3aed;text-transform:uppercase;}
 .badge-area{background:#dbeafe;color:#1e40af;}
-.card-subtema{font-size:.74rem;color:var(--sub);flex:1;white-space:nowraw;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.card-subtema{font-size:.74rem;color:var(--sub);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
 .card-body{padding:22px 20px;}
 .tag{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
 .tag-p{background:#dbeafe;color:var(--baby2);}
@@ -241,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .pf-field label{display:block;font-size:.78rem;font-weight:600;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
 .pf-field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:.92rem;color:var(--text);}
 .pf-field input:focus{outline:none;border-color:var(--baby2);}
-.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pf-row{display:gridid-template-columns:1fr 1fr;gap:14px;}
 .btn-save{background:linear-gradient(135deg,var(--pink) 0%,var(--pink2) 100%);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .15s;}
 .btn-save:hover{opacity:.88;}
 .btn-save:disabled{opacity:.6;cursor:default;}
@@ -285,6 +290,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     </div>
     <div id="login-error" class="login-error"></div>
     <div id="login-success" class="login-success"></div>
+
+    <!-- FORM LOGIN -->
     <div id="login-form-wrap">
       <div class="login-title">Entrar na plataforma</div>
       <div class="form-group">
@@ -297,7 +304,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <button class="btn-login" id="btn-entrar" onclick="doLogin()">Entrar</button>
       <div class="login-forgot"><a href="#" onclick="doForgot(event)">Esqueci minha senha</a></div>
+      <div class="login-switch">Não tem uma conta? <a href="#" onclick="showCadastro(event)">Cadastre-se aqui</a></div>
     </div>
+
+    <!-- FORM CADASTRO -->
+    <div id="cadastro-form-wrap">
+      <div class="login-title">Criar conta</div>
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="cad-nome" placeholder="Seu nome" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="cad-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" id="cad-senha2" placeholder="Repita a senha" autocomplete="new-password">
+      </div>
+      <button class="btn-login" id="btn-cadastrar" onclick="doCadastro()">Criar conta</button>
+      <div class="login-switch">Já tem uma conta? <a href="#" onclick="showLogin(event)">Entrar</a></div>
+    </div>
+
   </div>
 </div>
 
@@ -341,7 +373,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <span class="nav-badge">Em breve</span>
       </a>
       <a class="nav-item" onclick="showSection('simulados')" data-sec="simulados">
-        <span class="nav-icon">🎯</span> Simulados
+        <span class="nav-icon">🎯</span> Simulador
         <span class="nav-badge">Em breve</span>
       </a>
       <a class="nav-item" onclick="showSection('perfil')" data-sec="perfil">
@@ -374,7 +406,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <span class="bicon">❓</span>Questões
       </button>
       <button class="bnav-item" onclick="showSection('simulados')" data-sec="simulados">
-        <span class="bicon">🎯</span>Simulados
+        <span class="bicon">🎯</span>Simulador
       </button>
       <button class="bnav-item" onclick="toggleMoreDrawer()">
         <span class="bicon">⋯</span>Mais
@@ -692,6 +724,76 @@ function showApp() {
   document.getElementById('global-loading').style.display = 'none';
   document.getElementById('login-page').classList.remove('show');
   document.getElementById('app').classList.add('show');
+}
+
+function showCadastro(e) {
+  e.preventDefault();
+  document.getElementById('login-form-wrap').style.display = 'none';
+  document.getElementById('cadastro-form-wrap').classList.add('show');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-success').classList.remove('show');
+}
+
+function showLogin(e) {
+  e.preventDefault();
+  document.getElementById('login-form-wrap').style.display = 'block';
+  document.getElementById('cadastro-form-wrap').classList.remove('show');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-success').classList.remove('show');
+}
+
+async function doCadastro() {
+  const nome   = document.getElementById('cad-nome').value.trim();
+  const email  = document.getElementById('cad-email').value.trim();
+  const senha  = document.getElementById('cad-senha').value;
+  const senha2 = document.getElementById('cad-senha2').value;
+  const errEl  = document.getElementById('login-error');
+  const sucEl  = document.getElementById('login-success');
+  errEl.classList.remove('show');
+  sucEl.classList.remove('show');
+
+  if (!nome || !email || !senha) {
+    errEl.textContent = 'Preencha todos os campos.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (senha.length < 6) {
+    errEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (senha !== senha2) {
+    errEl.textContent = 'As senhas não coincidem.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('btn-cadastrar');
+  btn.disabled = true;
+  btn.textContent = 'Criando conta...';
+
+  const { error } = await db.auth.signUp({
+    email,
+    password: senha,
+    options: { data: { nome } }
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Criar conta';
+
+  if (error) {
+    errEl.textContent = error.message.includes('already registered')
+      ? 'Este e-mail já está cadastrado. Tente fazer login.'
+      : error.message;
+    errEl.classList.add('show');
+  } else {
+    sucEl.textContent = 'Conta criada! Verifique seu e-mail para confirmar o cadastro.';
+    sucEl.classList.add('show');
+    document.getElementById('cad-nome').value = '';
+    document.getElementById('cad-email').value = '';
+    document.getElementById('cad-senha').value = '';
+    document.getElementById('cad-senha2').value = '';
+  }
 }
 
 async function doLogin() {
@@ -1114,108 +1216,4 @@ async function salvarPerfil() {
   const { error } = await db.auth.updateUser({
     data: {
       nome: document.getElementById('pf-nome').value.trim(),
-      especialidade: document.getElementById('pf-especialidade').value.trim(),
-      telefone: document.getElementById('pf-telefone').value.trim()
-    }
-  });
-  btn.disabled = false;
-  btn.innerHTML = '💾 Salvar alterações';
-  if (error) {
-    toast('Erro: ' + error.message, true);
-  } else {
-    toast('Perfil atualizado! ✅');
-    const { data: { user } } = await db.auth.getUser();
-    currentUser = user;
-    loadUserInfo();
-    loadPerfil();
-  }
-}
-
-async function salvarSeguranca() {
-  const btn = document.getElementById('btn-save-seg');
-  const email = document.getElementById('pf-email').value.trim();
-  const senha = document.getElementById('pf-senha').value;
-  const senha2 = document.getElementById('pf-senha2').value;
-
-  if (senha && senha !== senha2) {
-    toast('As senhas não coincidem.', true);
-    return;
-  }
-  if (!email) {
-    toast('E-mail não pode ser vazio.', true);
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Salvando...';
-  const updates = { email };
-  if (senha) updates.password = senha;
-
-  const { error } = await db.auth.updateUser(updates);
-  btn.disabled = false;
-  btn.innerHTML = '🔒 Atualizar segurança';
-
-  if (error) {
-    toast('Erro: ' + error.message, true);
-  } else {
-    toast('Segurança atualizada! ✅');
-    document.getElementById('pf-senha').value = '';
-    document.getElementById('pf-senha2').value = '';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-//  MORE DRAWER (mobile)
-// ═══════════════════════════════════════════════════
-function toggleMoreDrawer() {
-  const overlay = document.getElementById('more-overlay');
-  const drawer  = document.getElementById('more-drawer');
-  const open = drawer.classList.contains('show');
-  if (open) {
-    closeMoreDrawer();
-  } else {
-    overlay.classList.add('show');
-    drawer.classList.add('show');
-  }
-}
-
-function closeMoreDrawer() {
-  document.getElementById('more-overlay').classList.remove('show');
-  document.getElementById('more-drawer').classList.remove('show');
-}
-
-// ═══════════════════════════════════════════════════
-//  KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════════════
-document.addEventListener('keydown', function(e) {
-  if (!document.getElementById('app').classList.contains('show')) return;
-  const secFc = document.getElementById('sec-flashcards');
-  if (!secFc.classList.contains('active')) return;
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-  if (e.code === 'Space') {
-    e.preventDefault();
-    if (!revelado) revelarResposta();
-  }
-  if (e.key === '1' && revelado) avaliar('ok');
-  if (e.key === '2' && revelado) avaliar('dv');
-  if (e.key === '3' && revelado) avaliar('no');
-  if (e.key === 'ArrowRight') proximoCard();
-  if (e.key === 'ArrowLeft') anteriorCard();
-});
-
-// ═══════════════════════════════════════════════════
-//  TOAST
-// ═══════════════════════════════════════════════════
-let toastTimer;
-function toast(msg, erro) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.style.background = erro ? '#b91c1c' : 'var(--navy)';
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
-}
-</script>
-</body>
-</html>
+      especi
