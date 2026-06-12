@@ -4,650 +4,1218 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORL Flash — Flashcards de Otorrinolaringologia</title>
-
-<!-- ============================================================
-     CONFIGURAÇÃO SUPABASE — preencha após criar o projeto
-     ============================================================
-     1. Acesse: https://supabase.com/dashboard/project/SEU_PROJETO/settings/api
-     2. Copie "Project URL" → SUPABASE_URL
-     3. Copie "anon public" → SUPABASE_KEY
-     ============================================================ -->
 <script>
   const SUPABASE_URL = "https://dpdfzysuyqhovtmclfcc.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwZGZ6eXN1eXFob3Z0bWNsZmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNTYxNTMsImV4cCI6MjA5MzkzMjE1M30.mzt5Sa9VgiymQ51YkVsDJT3vxj6X7vwEciPbpFa3o9s";
-  const MODO_DEMO    = SUPABASE_URL.includes("SEU_PROJETO"); // true = usa dados locais
 </script>
-
-<!-- Supabase JS SDK via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <style>
-  :root {
-    --azul:       #1a3a5c;
-    --azul-light: #2563eb;
-    --verde:      #16a34a;
-    --am-bg:      #fef9c3;
-    --am-bd:      #f59e0b;
-    --cinza-bg:   #f1f5f9;
-    --cinza-bd:   #e2e8f0;
-    --texto:      #1e293b;
-    --sub:        #64748b;
-    --r:          14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--cinza-bg);
-    color: var(--texto);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+:root {
+  --navy:   #0f2442;
+  --navy2:  #1a3a5c;
+  --baby:   #7dd3fc;
+  --baby2:  #38bdf8;
+  --pink:   #f472b6;
+  --pink2:  #ec4899;
+  --bg:     #f1f5f9;
+  --surface:#ffffff;
+  --text:   #1e293b;
+  --sub:    #64748b;
+  --border: #e2e8f0;
+  --green:  #22c55e;
+  --yellow: #f59e0b;
+  --red:    #ef4444;
+  --r:      14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
 
-  /* ── HEADER ── */
-  header {
-    background: var(--azul);
-    color: #fff;
-    padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 200;
-    box-shadow: 0 2px 12px rgba(0,0,0,.25);
-  }
-  .logo { font-size: 1.35rem; font-weight: 800; letter-spacing: -.5px; }
-  .logo span { color: #60a5fa; }
-  .header-stats { display: flex; gap: 10px; }
-  .stat-pill {
-    background: rgba(255,255,255,.12);
-    border-radius: 99px; padding: 4px 10px;
-    font-size: .78rem; font-weight: 600;
-  }
-  .demo-badge {
-    background: #f59e0b; color: #1a1a1a;
-    border-radius: 99px; padding: 4px 10px;
-    font-size: .72rem; font-weight: 700;
-  }
+/* ── LOADING GLOBAL ── */
+#global-loading{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px;}
+#global-loading .logo-big{font-size:2rem;font-weight:900;color:#fff;letter-spacing:-1px;}
+#global-loading .logo-big span{color:var(--baby);}
+.spinner-ring{width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--baby);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-  /* ── LOADING ── */
-  #loading {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 60vh; gap: 16px; color: var(--sub);
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--cinza-bd);
-    border-top-color: var(--azul-light);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* ── LOGIN PAGE ── */
+#login-page{display:none;min-height:100vh;background:linear-gradient(135deg,var(--navy) 0%,#1e3a5f 60%,#0f2442 100%);align-items:center;justify-content:center;padding:20px;}
+#login-page.show{display:flex;}
+.login-card{background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.3);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .name{font-size:1.8rem;font-weight:900;color:var(--navy);letter-spacing:-1px;}
+.login-logo .name span{color:var(--pink);}
+.login-logo .sub{font-size:.82rem;color:var(--sub);margin-top:4px;}
+.login-title{font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:20px;text-align:center;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;color:var(--text);background:#fff;transition:border-color .15s;}
+.form-group input:focus{outline:none;border-color:var(--baby2);}
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,var(--pink) 0%,var(--pink2) 100%);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s,transform .1s;letter-spacing:.3px;}
+.btn-login:hover{opacity:.92;transform:translateY(-1px);}
+.btn-login:active{transform:translateY(0);}
+.btn-login:disabled{opacity:.6;cursor:default;transform:none;}
+.login-forgot{text-align:center;margin-top:14px;}
+.login-forgot a{font-size:.85rem;color:var(--baby2);text-decoration:none;font-weight:500;}
+.login-forgot a:hover{color:var(--pink);}
+.login-error{background:#fee2e2;color:#b91c1c;border-radius:8px;padding:10px 14px;font-size:.85rem;margin-bottom:14px;display:none;}
+.login-error.show{display:block;}
+.login-success{background:#dcfce7;color:#15803d;border-radius:8px;padding:10px 14px;font-size:.85rem;margin-bottom:14px;display:none;}
+.login-success.show{display:block;}
 
-  /* ── FILTROS ── */
-  .filtros {
-    background: #fff;
-    border-bottom: 1px solid var(--cinza-bd);
-    padding: 10px 16px;
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  }
-  .filtros label { font-size: .8rem; color: var(--sub); font-weight: 600; }
-  .filtros select {
-    border: 1.5px solid var(--cinza-bd); border-radius: 8px;
-    padding: 5px 28px 5px 10px; font-size: .82rem; color: var(--texto);
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;
-    appearance: none; cursor: pointer;
-  }
-  .btn-shuffle {
-    margin-left: auto; background: var(--azul); color: #fff;
-    border: none; border-radius: 8px; padding: 6px 14px;
-    font-size: .82rem; font-weight: 600; cursor: pointer;
-  }
-  .btn-shuffle:hover { background: #1d4ed8; }
+/* ── APP LAYOUT ── */
+#app{display:none;}
+#app.show{display:flex;min-height:100vh;}
 
-  /* ── PROGRESSO ── */
-  .progresso {
-    background: #fff; padding: 8px 16px 10px;
-    border-bottom: 1px solid var(--cinza-bd);
-  }
-  .prog-info {
-    display: flex; justify-content: space-between;
-    font-size: .78rem; color: var(--sub); margin-bottom: 5px;
-  }
-  .prog-track { background: var(--cinza-bd); border-radius: 99px; height: 5px; overflow: hidden; }
-  .prog-fill {
-    height: 100%; border-radius: 99px;
-    background: linear-gradient(90deg, var(--azul-light), #06b6d4);
-    transition: width .3s ease;
-  }
-  .mini-placar { display: flex; gap: 12px; margin-top: 6px; font-size: .75rem; }
-  .mp { display: flex; align-items: center; gap: 3px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .dot-v { background: #22c55e; }
-  .dot-d { background: #f59e0b; }
-  .dot-e { background: #ef4444; }
+/* SIDEBAR */
+#sidebar{width:240px;min-height:100vh;background:var(--navy);position:fixed;top:0;left:0;z-index:300;display:flex;flex-direction:column;transition:transform .25s;}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar-logo .name{font-size:1.3rem;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.sidebar-logo .name span{color:var(--baby);}
+.sidebar-logo .tagline{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px;}
+.sidebar-user{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;}
+.user-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--baby),var(--pink));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0;}
+.user-info .user-name{font-size:.82rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
+.user-info .user-role{font-size:.7rem;color:rgba(255,255,255,.4);}
+.sidebar-nav{flex:1;padding:12px 0;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.65);font-size:.88rem;font-weight:500;border-left:3px solid transparent;text-decoration:none;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav-item.active{background:rgba(125,211,252,.12);color:var(--baby);border-left-color:var(--pink);font-weight:600;}
+.nav-item .nav-icon{font-size:1.1rem;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{font-size:.62rem;background:rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:2px 6px;border-radius:99px;margin-left:auto;font-weight:600;}
+.sidebar-bottom{padding:12px 0;border-top:1px solid rgba(255,255,255,.08);}
+.btn-logout{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;color:rgba(255,255,255,.5);font-size:.85rem;font-weight:500;width:100%;background:none;border:none;transition:color .15s;}
+.btn-logout:hover{color:#ef4444;}
+.btn-logout .nav-icon{font-size:1rem;width:20px;text-align:center;}
 
-  /* ── MAIN ── */
-  main { max-width: 680px; margin: 0 auto; padding: 20px 14px 90px; }
+/* MAIN */
+#main{margin-left:240px;flex:1;min-height:100vh;}
+.section{display:none;padding:28px 32px 80px;}
+.section.active{display:block;}
+.section-header{margin-bottom:24px;}
+.section-title{font-size:1.5rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;}
+.section-sub{font-size:.88rem;color:var(--sub);margin-top:4px;}
 
-  /* ── CARD ── */
-  .card {
-    background: #fff; border-radius: var(--r);
-    box-shadow: 0 2px 16px rgba(0,0,0,.07); overflow: hidden;
-    animation: cardIn .2s ease;
-  }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .card-head {
-    background: var(--cinza-bg); border-bottom: 1px solid var(--cinza-bd);
-    padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  }
-  .badge {
-    font-size: .7rem; font-weight: 700; padding: 2px 8px;
-    border-radius: 99px; letter-spacing: .3px;
-  }
-  .badge-num  { background: var(--cinza-bd); color: var(--sub); }
-  .badge-tipo { background: #ede9fe; color: #7c3aed; text-transform: uppercase; }
-  .badge-area { background: #dbeafe; color: #1e40af; }
-  .card-subtema {
-    font-size: .76rem; color: var(--sub); flex: 1;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
-  }
-  .card-fonte { font-size: .7rem; color: var(--sub); opacity: .6; }
+/* ── TOPBAR (mobile only) ── */
+#topbar{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--navy);padding:14px 18px;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.topbar-logo{font-size:1.2rem;font-weight:900;color:#fff;}
+.topbar-logo span{color:var(--baby);}
+.btn-menu{background:none;border:none;cursor:pointer;color:#fff;font-size:1.4rem;padding:4px;}
 
-  .card-body { padding: 20px 18px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: .7rem; font-weight: 700; padding: 3px 10px;
-    border-radius: 99px; margin-bottom: 10px;
-    text-transform: uppercase; letter-spacing: .5px;
-  }
-  .tag-p { background: #dbeafe; color: var(--azul-light); }
-  .tag-r { background: #dcfce7; color: var(--verde); }
+/* ── BOTTOM NAV (mobile only) ── */
+#bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--border);padding:6px 0 env(safe-area-inset-bottom);}
+.bottom-nav-inner{display:flex;justify-content:space-around;}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;cursor:pointer;color:var(--sub);font-size:.62rem;font-weight:600;background:none;border:none;min-width:60px;}
+.bnav-item .bicon{font-size:1.35rem;line-height:1;}
+.bnav-item.active{color:var(--pink);}
+.bnav-item.active .bicon{filter:drop-shadow(0 0 4px rgba(244,114,182,.4));}
 
-  .pergunta {
-    font-size: 1rem; line-height: 1.6; font-weight: 500;
-    color: var(--texto); margin-bottom: 18px;
-  }
+/* ── MORE DRAWER (mobile) ── */
+#more-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;}
+#more-overlay.show{display:block;}
+#more-drawer{position:fixed;bottom:0;left:0;right:0;z-index:401;background:#fff;border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:transform .25s ease;}
+#more-drawer.show{transform:translateY(0);}
+.drawer-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 20px;}
+.drawer-title{font-size:.75rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+.drawer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.drawer-item{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;background:var(--bg);cursor:pointer;color:var(--text);font-size:.88rem;font-weight:600;border:none;width:100%;}
+.drawer-item:hover{background:var(--border);}
+.drawer-item.active{background:rgba(15,36,66,.08);color:var(--navy);}
+.drawer-icon{font-size:1.2rem;}
+.btn-logout-drawer{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;background:#fee2e2;cursor:pointer;color:#b91c1c;font-size:.88rem;font-weight:600;border:none;width:100%;}
 
-  .btn-revelar {
-    width: 100%; padding: 13px;
-    background: var(--azul-light); color: #fff;
-    border: none; border-radius: 10px;
-    font-size: .95rem; font-weight: 700; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .btn-revelar:hover { background: #1d4ed8; }
-  .kbd-hint { font-size: .7rem; opacity: .7; border: 1.5px solid rgba(255,255,255,.4); border-radius: 4px; padding: 1px 5px; }
+/* ── DASHBOARD ── */
+.greeting{margin-bottom:24px;}
+.greeting-name{font-size:1.6rem;font-weight:800;color:var(--navy);}
+.greeting-date{font-size:.85rem;color:var(--sub);margin-top:2px;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.stat-icon{font-size:1.4rem;margin-bottom:8px;}
+.stat-val{font-size:1.7rem;font-weight:800;color:var(--navy);}
+.stat-lbl{font-size:.75rem;color:var(--sub);margin-top:2px;font-weight:500;}
+.stat-card.highlight{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);}
+.stat-card.highlight .stat-val,.stat-card.highlight .stat-lbl{color:#fff;}
+.stat-card.highlight .stat-lbl{opacity:.7;}
+.quick-access{margin-bottom:28px;}
+.qa-title{font-size:.88rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:14px;}
+.qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.qa-item{background:#fff;border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1.5px solid var(--border);}
+.qa-item:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08);}
+.qa-item .qi-icon{font-size:1.8rem;margin-bottom:8px;}
+.qa-item .qi-name{font-size:.82rem;font-weight:700;color:var(--navy);}
+.qa-item .qi-badge{font-size:.65rem;background:var(--bg);color:var(--sub);padding:2px 8px;border-radius:99px;margin-top:4px;display:inline-block;}
+.qa-item.soon{opacity:.6;}
+.streak-banner{background:linear-gradient(135deg,var(--pink) 0%,#c026d3 100%);border-radius:var(--r);padding:18px 20px;display:flex;align-items:center;gap:14px;color:#fff;margin-bottom:20px;}
+.streak-fire{font-size:2rem;}
+.streak-text .sv{font-size:1.3rem;font-weight:800;}
+.streak-text .sl{font-size:.8rem;opacity:.85;margin-top:2px;}
 
-  .resposta-wrap {
-    display: none; border-top: 1px solid var(--cinza-bd);
-    padding-top: 16px; margin-top: 16px;
-  }
-  .resposta-wrap.show { display: block; }
+/* ── FLASHCARDS SECTION ── */
+.fc-filters{background:#fff;border-radius:var(--r);padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.fc-filters label{font-size:.78rem;color:var(--sub);font-weight:600;}
+.fc-filters select{border:1.5px solid var(--border);border-radius:8px;padding:6px 28px 6px 10px;font-size:.82rem;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;cursor:pointer;}
+.btn-shuffle{margin-left:auto;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.btn-shuffle:hover{background:var(--navy2);}
+.fc-progress{background:#fff;border-radius:var(--r);padding:10px 16px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.fc-prog-info{display:flex;justify-content:space-between;font-size:.75rem;color:var(--sub);margin-bottom:6px;}
+.fc-prog-track{background:var(--border);border-radius:99px;height:5px;overflow:hidden;}
+.fc-prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--baby2),var(--pink));transition:width .3s ease;}
+.fc-placar{display:flex;gap:12px;margin-top:8px;font-size:.75rem;}
+.fc-pl{display:flex;align-items:center;gap:4px;}
+.fc-dot{width:8px;height:8px;border-radius:50%;}
 
-  .resposta {
-    font-size: .95rem; line-height: 1.7;
-    white-space: pre-line; color: var(--texto); margin-bottom: 12px;
-  }
+/* CARD */
+.flashcard{background:#fff;border-radius:var(--r);box-shadow:0 2px 16px rgba(0,0,0,.07);overflow:hidden;animation:cardIn .2s ease;}
+@keyframes cardIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.card-head{background:var(--bg);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.badge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.3px;}
+.badge-num{background:var(--border);color:var(--sub);}
+.badge-tipo{background:#ede9fe;color:#7c3aed;text-transform:uppercase;}
+.badge-area{background:#dbeafe;color:#1e40af;}
+.card-subtema{font-size:.74rem;color:var(--sub);flex:1;white-space:nowraw;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.card-body{padding:22px 20px;}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px;}
+.tag-p{background:#dbeafe;color:var(--baby2);}
+.tag-r{background:#dcfce7;color:#16a34a;}
+.pergunta{font-size:1rem;line-height:1.65;font-weight:500;color:var(--text);margin-bottom:18px;}
+.btn-revelar{width:100%;padding:13px;background:linear-gradient(135deg,var(--baby2) 0%,var(--pink) 100%);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s;}
+.btn-revelar:hover{opacity:.9;}
+.kbd-hint{font-size:.68rem;opacity:.7;border:1.5px solid rgba(255,255,255,.4);border-radius:4px;padding:1px 5px;}
+.resposta-wrap{display:none;border-top:1px solid var(--border);padding-top:16px;margin-top:16px;}
+.resposta-wrap.show{display:block;}
+.resposta{font-size:.95rem;line-height:1.7;white-space:pre-line;color:var(--text);margin-bottom:12px;}
+.obs{background:#fef9c3;border:1.5px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:.85rem;line-height:1.55;color:#78350f;margin-bottom:14px;}
+.obs-title{font-size:.72rem;font-weight:700;color:#92400e;margin-bottom:4px;text-transform:uppercase;}
+.avaliar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;}
+.btn-av{padding:11px 6px;border:1.5px solid;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:opacity .15s,transform .1s;}
+.btn-av:hover{opacity:.85;transform:translateY(-1px);}
+.av-ok{background:#dcfce7;color:#15803d;border-color:#86efac;}
+.av-dv{background:#fef9c3;color:#92400e;border-color:#fde68a;}
+.av-no{background:#fee2e2;color:#b91c1c;border-color:#fca5a5;}
+.av-key{font-size:.62rem;opacity:.55;font-weight:400;}
+.card-nav{display:flex;gap:10px;margin-top:18px;}
+.btn-nav{flex:1;padding:11px;border:1.5px solid var(--border);background:#fff;border-radius:10px;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--text);transition:background .15s;}
+.btn-nav:hover:not(:disabled){background:var(--bg);}
+.btn-nav:disabled{opacity:.35;cursor:default;}
+.teclado-info{text-align:center;font-size:.7rem;color:var(--sub);margin-top:10px;opacity:.7;}
 
-  .obs {
-    background: var(--am-bg); border: 1.5px solid var(--am-bd);
-    border-radius: 10px; padding: 12px 14px;
-    font-size: .87rem; line-height: 1.55; color: #78350f; margin-bottom: 14px;
-  }
-  .obs-title { font-size: .76rem; font-weight: 700; color: #92400e; margin-bottom: 5px; }
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--sub);}
+.empty-icon{font-size:3rem;margin-bottom:16px;opacity:.5;}
+.empty-title{font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.empty-msg{font-size:.88rem;line-height:1.6;}
 
-  .avaliar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 4px; }
-  .btn-av {
-    padding: 11px 6px; border: 1.5px solid;
-    border-radius: 10px; font-size: .88rem; font-weight: 700;
-    cursor: pointer; transition: opacity .15s, transform .1s;
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-  }
-  .btn-av:hover { opacity: .85; transform: translateY(-1px); }
-  .btn-av:active { transform: translateY(0); }
-  .av-key { font-size: .65rem; opacity: .55; font-weight: 400; }
-  .av-ok  { background: #dcfce7; color: #15803d; border-color: #86efac; }
-  .av-dv  { background: #fef9c3; color: #92400e; border-color: #fde68a; }
-  .av-no  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+/* RESULTADO */
+#tela-resultado{display:none;text-align:center;padding:40px 16px;}
+#tela-resultado.show{display:block;}
+.res-titulo{font-size:1.7rem;color:var(--navy);font-weight:800;margin-bottom:6px;}
+.res-sub{font-size:.9rem;color:var(--sub);margin-bottom:24px;}
+.res-pct{font-size:3rem;font-weight:900;color:var(--pink);}
+.res-pct-lbl{font-size:.82rem;color:var(--sub);margin-bottom:24px;}
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+.res-item{border-radius:14px;padding:18px 10px;font-weight:700;}
+.res-item .num{font-size:2.2rem;}
+.res-item .lbl{font-size:.78rem;margin-top:2px;}
+.ri-ok{background:#dcfce7;color:#15803d;}
+.ri-dv{background:#fef9c3;color:#92400e;}
+.ri-no{background:#fee2e2;color:#b91c1c;}
+.res-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.btn-res{padding:13px 28px;border-radius:12px;font-size:.95rem;font-weight:700;cursor:pointer;border:none;}
+.btn-res-all{background:var(--navy);color:#fff;}
+.btn-res-err{background:#fee2e2;color:#b91c1c;border:1.5px solid #fca5a5;}
 
-  .nav { display: flex; gap: 10px; margin-top: 18px; }
-  .btn-nav {
-    flex: 1; padding: 11px;
-    border: 1.5px solid var(--cinza-bd); background: #fff;
-    border-radius: 10px; font-size: .88rem; font-weight: 600;
-    cursor: pointer; color: var(--texto); transition: background .15s;
-  }
-  .btn-nav:hover:not(:disabled) { background: var(--cinza-bg); }
-  .btn-nav:disabled { opacity: .35; cursor: default; }
+/* ── EM BREVE ── */
+.em-breve{text-align:center;padding:80px 20px;max-width:480px;margin:0 auto;}
+.eb-icon{font-size:4rem;margin-bottom:20px;opacity:.6;}
+.eb-title{font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.eb-msg{font-size:.95rem;color:var(--sub);line-height:1.65;margin-bottom:24px;}
+.eb-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(125,211,252,.15),rgba(244,114,182,.15));border:1.5px solid var(--border);border-radius:99px;padding:8px 18px;font-size:.8rem;font-weight:600;color:var(--navy);}
 
-  .teclado-info {
-    text-align: center; font-size: .72rem; color: var(--sub);
-    margin-top: 12px; opacity: .7;
-  }
+/* ── PERFIL ── */
+.perfil-card{background:#fff;border-radius:var(--r);padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);max-width:560px;margin-bottom:20px;}
+.perfil-card-title{font-size:.88rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.pf-avatar-wrap{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.pf-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--baby),var(--pink));display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;flex-shrink:0;}
+.pf-avatar-info .pf-name{font-size:1.1rem;font-weight:700;color:var(--navy);}
+.pf-avatar-info .pf-email{font-size:.8rem;color:var(--sub);margin-top:2px;}
+.pf-field{margin-bottom:14px;}
+.pf-field label{display:block;font-size:.78rem;font-weight:600;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.pf-field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:.92rem;color:var(--text);}
+.pf-field input:focus{outline:none;border-color:var(--baby2);}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn-save{background:linear-gradient(135deg,var(--pink) 0%,var(--pink2) 100%);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .15s;}
+.btn-save:hover{opacity:.88;}
+.btn-save:disabled{opacity:.6;cursor:default;}
 
-  /* ── RESULTADO ── */
-  #tela-resultado { display: none; text-align: center; padding: 40px 16px; }
-  #tela-resultado.show { display: block; }
-  .res-titulo { font-size: 1.7rem; color: var(--azul); font-weight: 800; margin-bottom: 6px; }
-  .res-sub { font-size: .9rem; color: var(--sub); margin-bottom: 24px; }
-  .res-pct { font-size: 3rem; font-weight: 900; color: var(--azul-light); margin-bottom: 2px; }
-  .res-pct-lbl { font-size: .82rem; color: var(--sub); margin-bottom: 24px; }
-  .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
-  .res-item { border-radius: 14px; padding: 18px 10px; font-weight: 700; }
-  .res-item .num { font-size: 2.2rem; }
-  .res-item .lbl { font-size: .78rem; margin-top: 2px; }
-  .ri-ok { background: #dcfce7; color: #15803d; }
-  .ri-dv { background: #fef9c3; color: #92400e; }
-  .ri-no { background: #fee2e2; color: #b91c1c; }
-  .res-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-  .btn-res {
-    padding: 13px 28px; border-radius: 12px;
-    font-size: .95rem; font-weight: 700; cursor: pointer; border: none;
-  }
-  .btn-res-all { background: var(--azul); color: #fff; }
-  .btn-res-err { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fca5a5; }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 22px;border-radius:99px;font-size:.85rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;}
 
-  .empty { text-align: center; padding: 60px 20px; color: var(--sub); }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: var(--azul); color: #fff;
-    padding: 10px 22px; border-radius: 99px;
-    font-size: .85rem; font-weight: 600;
-    box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    opacity: 0; transition: opacity .2s;
-    pointer-events: none; z-index: 999;
-  }
-  .toast.show { opacity: 1; }
-
-  @media (max-width: 480px) {
-    .kbd-hint, .av-key, .teclado-info { display: none; }
-  }
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  #sidebar{display:none;}
+  #topbar{display:flex;}
+  #bottom-nav{display:block;}
+  #main{margin-left:0;padding-top:60px;}
+  .section{padding:20px 16px 90px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .qa-grid{grid-template-columns:1fr 1fr;}
+  .pf-row{grid-template-columns:1fr;}
+  .section-title{font-size:1.25rem;}
+  .kbd-hint,.av-key,.teclado-info{display:none;}
+}
+@media(max-width:1024px) and (min-width:769px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">ORL <span>Flash</span></div>
-  <div class="header-stats">
-    <span class="stat-pill" id="h-total">…</span>
-    <span class="stat-pill" id="h-hoje">0 hoje</span>
-    <span class="demo-badge" id="demo-badge" style="display:none">DEMO</span>
-  </div>
-</header>
-
-<div class="filtros" id="filtros" style="display:none">
-  <label>Área</label>
-  <select id="f-area" onchange="filtrar()"><option value="">Todas</option></select>
-  <label>Capítulo</label>
-  <select id="f-cap"  onchange="filtrar()"><option value="">Todos</option></select>
-  <label>Tipo</label>
-  <select id="f-tipo" onchange="filtrar()">
-    <option value="">Todos</option>
-    <option value="PR">P&amp;R</option>
-    <option value="Lacuna">Lacuna</option>
-    <option value="Imagem">Imagem</option>
-    <option value="ContextoClinico">Contexto Clínico</option>
-  </select>
-  <button class="btn-shuffle" id="btn-emb" onclick="embaralhar()">🔀 Embaralhar</button>
+<!-- LOADING GLOBAL -->
+<div id="global-loading">
+  <div class="logo-big">ORL <span>Flash</span></div>
+  <div class="spinner-ring"></div>
 </div>
 
-<div class="progresso" id="barra-prog" style="display:none">
-  <div class="prog-info">
-    <span id="prog-txt">Card 1 de 0</span>
-    <span id="prog-pct">0%</span>
-  </div>
-  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-  <div class="mini-placar">
-    <div class="mp"><span class="dot dot-v"></span><span id="mp-v">0</span> acertei</div>
-    <div class="mp"><span class="dot dot-d"></span><span id="mp-d">0</span> dúvida</div>
-    <div class="mp"><span class="dot dot-e"></span><span id="mp-e">0</span> errei</div>
-  </div>
-</div>
-
-<main>
-  <!-- LOADING -->
-  <div id="loading">
-    <div class="spinner"></div>
-    <span>Carregando flashcards…</span>
-  </div>
-
-  <!-- ESTUDO -->
-  <div id="tela-card" style="display:none">
-    <div class="card" id="card-el">
-      <div class="card-head">
-        <span class="badge badge-num"  id="c-id">#1</span>
-        <span class="badge badge-tipo" id="c-tipo">PR</span>
-        <span class="badge badge-area" id="c-area">Otologia</span>
-        <span class="card-subtema"     id="c-subtema"></span>
-        <span class="card-fonte"       id="c-fonte"></span>
+<!-- LOGIN PAGE -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="name">ORL <span>Flash</span></div>
+      <div class="sub">Flashcards de Otorrinolaringologia</div>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <div id="login-success" class="login-success"></div>
+    <div id="login-form-wrap">
+      <div class="login-title">Entrar na plataforma</div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="inp-email" placeholder="seu@email.com" autocomplete="email">
       </div>
-      <div class="card-body">
-        <div class="tag tag-p">📚 Pergunta</div>
-        <div class="pergunta" id="c-pergunta"></div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" id="btn-entrar" onclick="doLogin()">Entrar</button>
+      <div class="login-forgot"><a href="#" onclick="doForgot(event)">Esqueci minha senha</a></div>
+    </div>
+  </div>
+</div>
 
-        <button class="btn-revelar" id="btn-rev" onclick="revelar()">
-          👁 Revelar Resposta <span class="kbd-hint">Espaço</span>
-        </button>
+<!-- APP -->
+<div id="app">
 
-        <div class="resposta-wrap" id="resp-wrap">
-          <div class="tag tag-r">✅ Resposta</div>
-          <div class="resposta" id="c-resposta"></div>
-          <div class="obs" id="c-obs" style="display:none">
-            <div class="obs-title">⚠️ Observação importante</div>
-            <span id="c-obs-txt"></span>
+  <!-- SIDEBAR (desktop) -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">ORL <span>Flash</span></div>
+      <div class="tagline">Otorrinolaringologia</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sb-avatar">R</div>
+      <div class="user-info">
+        <div class="user-name" id="sb-name">Carregando...</div>
+        <div class="user-role">Médico Residente</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" onclick="showSection('dashboard')" data-sec="dashboard">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a class="nav-item" onclick="showSection('flashcards')" data-sec="flashcards">
+        <span class="nav-icon">🃏</span> Flashcards
+      </a>
+      <a class="nav-item" onclick="showSection('questoes')" data-sec="questoes">
+        <span class="nav-icon">❓</span> Questões
+        <span class="nav-badge">Em breve</span>
+      </a>
+      <a class="nav-item" onclick="showSection('aulas')" data-sec="aulas">
+        <span class="nav-icon">🎬</span> Aulas
+        <span class="nav-badge">Em breve</span>
+      </a>
+      <a class="nav-item" onclick="showSection('apostilas')" data-sec="apostilas">
+        <span class="nav-icon">📖</span> Apostilas
+        <span class="nav-badge">Em breve</span>
+      </a>
+      <a class="nav-item" onclick="showSection('provas')" data-sec="provas">
+        <span class="nav-icon">📝</span> Provas
+        <span class="nav-badge">Em breve</span>
+      </a>
+      <a class="nav-item" onclick="showSection('simulados')" data-sec="simulados">
+        <span class="nav-icon">🎯</span> Simulados
+        <span class="nav-badge">Em breve</span>
+      </a>
+      <a class="nav-item" onclick="showSection('perfil')" data-sec="perfil">
+        <span class="nav-icon">👤</span> Perfil
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="btn-logout" onclick="doLogout()">
+        <span class="nav-icon">🚪</span> Sair da conta
+      </button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR (mobile) -->
+  <div id="topbar">
+    <div class="topbar-logo">ORL <span>Flash</span></div>
+    <button class="btn-menu" onclick="toggleMoreDrawer()">☰</button>
+  </div>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav id="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="bnav-item active" onclick="showSection('dashboard')" data-sec="dashboard">
+        <span class="bicon">🏠</span>Dashboard
+      </button>
+      <button class="bnav-item" onclick="showSection('flashcards')" data-sec="flashcards">
+        <span class="bicon">🃏</span>Flashcards
+      </button>
+      <button class="bnav-item" onclick="showSection('questoes')" data-sec="questoes">
+        <span class="bicon">❓</span>Questões
+      </button>
+      <button class="bnav-item" onclick="showSection('simulados')" data-sec="simulados">
+        <span class="bicon">🎯</span>Simulados
+      </button>
+      <button class="bnav-item" onclick="toggleMoreDrawer()">
+        <span class="bicon">⋯</span>Mais
+      </button>
+    </div>
+  </nav>
+
+  <!-- MORE DRAWER (mobile) -->
+  <div id="more-overlay" onclick="closeMoreDrawer()"></div>
+  <div id="more-drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-title">Mais seções</div>
+    <div class="drawer-grid">
+      <button class="drawer-item" onclick="showSection('aulas');closeMoreDrawer()" data-sec="aulas">
+        <span class="drawer-icon">🎬</span>Aulas
+      </button>
+      <button class="drawer-item" onclick="showSection('apostilas');closeMoreDrawer()" data-sec="apostilas">
+        <span class="drawer-icon">📖</span>Apostilas
+      </button>
+      <button class="drawer-item" onclick="showSection('provas');closeMoreDrawer()" data-sec="provas">
+        <span class="drawer-icon">📝</span>Provas
+      </button>
+      <button class="drawer-item" onclick="showSection('perfil');closeMoreDrawer()" data-sec="perfil">
+        <span class="drawer-icon">👤</span>Perfil
+      </button>
+    </div>
+    <button class="btn-logout-drawer" onclick="doLogout()">🚪 Sair da conta</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <!-- DASHBOARD -->
+    <section id="sec-dashboard" class="section active">
+      <div class="greeting">
+        <div class="greeting-name" id="dash-greeting">Olá! 👋</div>
+        <div class="greeting-date" id="dash-date"></div>
+      </div>
+      <div id="streak-banner-wrap"></div>
+      <div class="stats-grid">
+        <div class="stat-card highlight">
+          <div class="stat-icon">📚</div>
+          <div class="stat-val" id="stat-total">–</div>
+          <div class="stat-lbl">Total de flashcards</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-val" id="stat-hoje">0</div>
+          <div class="stat-lbl">Estudados hoje</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-val" id="stat-acertos">–</div>
+          <div class="stat-lbl">% de acertos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-val" id="stat-streak">0</div>
+          <div class="stat-lbl">Dias seguidos</div>
+        </div>
+      </div>
+      <div class="quick-access">
+        <div class="qa-title">Acesso rápido</div>
+        <div class="qa-grid">
+          <div class="qa-item" onclick="showSection('flashcards')">
+            <div class="qi-icon">🃏</div>
+            <div class="qi-name">Flashcards</div>
+            <div class="qi-badge" id="qa-fc-count">Carregando...</div>
           </div>
-          <div class="avaliar">
-            <button class="btn-av av-ok" onclick="avaliar('v')">✅ Acertei<span class="av-key">tecla 1</span></button>
-            <button class="btn-av av-dv" onclick="avaliar('d')">❓ Dúvida<span class="av-key">tecla 2</span></button>
-            <button class="btn-av av-no" onclick="avaliar('e')">❌ Errei<span class="av-key">tecla 3</span></button>
+          <div class="qa-item soon" onclick="showSection('questoes')">
+            <div class="qi-icon">❓</div>
+            <div class="qi-name">Questões</div>
+            <div class="qi-badge">Em breve</div>
+          </div>
+          <div class="qa-item soon" onclick="showSection('aulas')">
+            <div class="qi-icon">🎬</div>
+            <div class="qi-name">Aulas</div>
+            <div class="qi-badge">Em breve</div>
+          </div>
+          <div class="qa-item soon" onclick="showSection('apostilas')">
+            <div class="qi-icon">📖</div>
+            <div class="qi-name">Apostilas</div>
+            <div class="qi-badge">Em breve</div>
+          </div>
+          <div class="qa-item soon" onclick="showSection('provas')">
+            <div class="qi-icon">📝</div>
+            <div class="qi-name">Provas</div>
+            <div class="qi-badge">Em breve</div>
+          </div>
+          <div class="qa-item soon" onclick="showSection('simulados')">
+            <div class="qi-icon">🎯</div>
+            <div class="qi-name">Simulados</div>
+            <div class="qi-badge">Em breve</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="nav">
-      <button class="btn-nav" id="btn-ant" onclick="ir(-1)" disabled>← Anterior</button>
-      <button class="btn-nav" id="btn-prox" onclick="avancar()">Próximo →</button>
-    </div>
-    <div class="teclado-info">
-      ⌨️ <strong>Espaço</strong> revelar &nbsp;|&nbsp;
-      <strong>1</strong> acertei &nbsp;<strong>2</strong> dúvida &nbsp;<strong>3</strong> errei &nbsp;|&nbsp;
-      <strong>← →</strong> navegar
-    </div>
-  </div>
+    <!-- FLASHCARDS -->
+    <section id="sec-flashcards" class="section">
+      <div class="section-header">
+        <div class="section-title">Flashcards</div>
+        <div class="section-sub">Estude por área ou capítulo</div>
+      </div>
+      <div class="fc-filters">
+        <label>Área</label>
+        <select id="f-area" onchange="filtrar()"><option value="">Todas</option></select>
+        <label>Capítulo</label>
+        <select id="f-cap" onchange="filtrar()"><option value="">Todos</option></select>
+        <button class="btn-shuffle" onclick="embaralhar()">🔀 Embaralhar</button>
+      </div>
+      <div class="fc-progress" id="fc-progress" style="display:none">
+        <div class="fc-prog-info">
+          <span id="prog-label">Card 1 de 1</span>
+          <span id="prog-pct">0%</span>
+        </div>
+        <div class="fc-prog-track"><div class="fc-prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="fc-placar">
+          <div class="fc-pl"><div class="fc-dot" style="background:var(--green)"></div><span id="pl-ok">0 sabia</span></div>
+          <div class="fc-pl"><div class="fc-dot" style="background:var(--yellow)"></div><span id="pl-dv">0 dúvida</span></div>
+          <div class="fc-pl"><div class="fc-dot" style="background:var(--red)"></div><span id="pl-no">0 errei</span></div>
+        </div>
+      </div>
+      <div id="fc-loading" style="text-align:center;padding:40px;color:var(--sub);">
+        <div class="spinner-ring" style="margin:0 auto 12px;"></div>
+        Carregando flashcards...
+      </div>
+      <div id="fc-empty" style="display:none">
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">Nenhum flashcard disponível</div>
+          <div class="empty-msg">Os flashcards estão sendo preparados.<br>Em breve você terá acesso a milhares de cards de ORL!</div>
+        </div>
+      </div>
+      <div id="fc-card-wrap" style="display:none">
+        <div class="flashcard" id="fc-card">
+          <div class="card-head" id="card-head"></div>
+          <div class="card-body">
+            <div id="card-tag"></div>
+            <div class="pergunta" id="card-pergunta"></div>
+            <button class="btn-revelar" id="btn-revelar" onclick="revelarResposta()">
+              👁 Revelar Resposta <span class="kbd-hint">Espaço</span>
+            </button>
+            <div class="resposta-wrap" id="resposta-wrap">
+              <div class="resposta" id="card-resposta"></div>
+              <div class="obs" id="card-obs" style="display:none">
+                <div class="obs-title">⚠ Observação</div>
+                <div id="card-obs-text"></div>
+              </div>
+              <div class="avaliar">
+                <button class="btn-av av-ok" onclick="avaliar('ok')">✓ Sabia<span class="av-key">1</span></button>
+                <button class="btn-av av-dv" onclick="avaliar('dv')">~ Dúvida<span class="av-key">2</span></button>
+                <button class="btn-av av-no" onclick="avaliar('no')">✗ Errei<span class="av-key">3</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-nav">
+          <button class="btn-nav" id="btn-anterior" onclick="anteriorCard()" disabled>← Anterior</button>
+          <button class="btn-nav" id="btn-proximo" onclick="proximoCard()">Próximo →</button>
+        </div>
+        <div class="teclado-info">Atalhos: <strong>Espaço</strong> revelar · <strong>1</strong> sabia · <strong>2</strong> dúvida · <strong>3</strong> errei · <strong>← →</strong> navegar</div>
+      </div>
+      <div id="tela-resultado">
+        <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
+        <div class="res-titulo">Sessão concluída!</div>
+        <div class="res-sub">Você estudou todos os flashcards</div>
+        <div class="res-pct" id="res-pct">0%</div>
+        <div class="res-pct-lbl">de acertos</div>
+        <div class="res-grid">
+          <div class="res-item ri-ok"><div class="num" id="res-ok">0</div><div class="lbl">Sabia</div></div>
+          <div class="res-item ri-dv"><div class="num" id="res-dv">0</div><div class="lbl">Dúvida</div></div>
+          <div class="res-item ri-no"><div class="num" id="res-no">0</div><div class="lbl">Errei</div></div>
+        </div>
+        <div class="res-btns">
+          <button class="btn-res btn-res-all" onclick="reiniciarDeck()">🔄 Estudar de novo</button>
+          <button class="btn-res btn-res-err" onclick="estudarErros()">✗ Só os erros</button>
+        </div>
+      </div>
+    </section>
 
-  <!-- RESULTADO -->
-  <div id="tela-resultado">
-    <div class="res-titulo">🎉 Sessão concluída!</div>
-    <div class="res-sub" id="res-sub"></div>
-    <div class="res-pct" id="res-pct">0%</div>
-    <div class="res-pct-lbl">de acertos</div>
-    <div class="res-grid">
-      <div class="res-item ri-ok"><div class="num" id="r-v">0</div><div class="lbl">Acertei ✅</div></div>
-      <div class="res-item ri-dv"><div class="num" id="r-d">0</div><div class="lbl">Dúvida ❓</div></div>
-      <div class="res-item ri-no"><div class="num" id="r-e">0</div><div class="lbl">Errei ❌</div></div>
-    </div>
-    <div class="res-btns">
-      <button class="btn-res btn-res-all" onclick="reiniciar(false)">🔄 Refazer todos</button>
-      <button class="btn-res btn-res-err" onclick="reiniciar(true)">❌ Só erros e dúvidas</button>
-    </div>
-  </div>
-</main>
+    <!-- QUESTÕES -->
+    <section id="sec-questoes" class="section">
+      <div class="em-breve">
+        <div class="eb-icon">❓</div>
+        <div class="eb-title">Questões</div>
+        <div class="eb-msg">Banco de questões comentadas de ORL para provas de residência e RQE. Estamos preparando este módulo com todo o cuidado.</div>
+        <div class="eb-badge">🚀 Em breve</div>
+      </div>
+    </section>
 
+    <!-- AULAS -->
+    <section id="sec-aulas" class="section">
+      <div class="em-breve">
+        <div class="eb-icon">🎬</div>
+        <div class="eb-title">Aulas</div>
+        <div class="eb-msg">Videoaulas objetivas cobrindo todos os temas de ORL para residência. Cada aula foi pensada para maximizar sua retenção.</div>
+        <div class="eb-badge">🚀 Em breve</div>
+      </div>
+    </section>
+
+    <!-- APOSTILAS -->
+    <section id="sec-apostilas" class="section">
+      <div class="em-breve">
+        <div class="eb-icon">📖</div>
+        <div class="eb-title">Apostilas</div>
+        <div class="eb-msg">Material teórico estruturado para leitura e revisão rápida, organizado por temas e alinhado com o ABORL-CCF.</div>
+        <div class="eb-badge">🚀 Em breve</div>
+      </div>
+    </section>
+
+    <!-- PROVAS -->
+    <section id="sec-provas" class="section">
+      <div class="em-breve">
+        <div class="eb-icon">📝</div>
+        <div class="eb-title">Provas Anteriores</div>
+        <div class="eb-msg">Provas comentadas dos principais programas de residência em ORL do Brasil. Pratique com questões reais e veja o gabarito explicado.</div>
+        <div class="eb-badge">🚀 Em breve</div>
+      </div>
+    </section>
+
+    <!-- SIMULADOS -->
+    <section id="sec-simulados" class="section">
+      <div class="em-breve">
+        <div class="eb-icon">🎯</div>
+        <div class="eb-title">Simulados</div>
+        <div class="eb-msg">Simulados cronometrados no formato das provas de residência. Teste seus conhecimentos em condições reais de prova.</div>
+        <div class="eb-badge">🚀 Em breve</div>
+      </div>
+    </section>
+
+    <!-- PERFIL -->
+    <section id="sec-perfil" class="section">
+      <div class="section-header">
+        <div class="section-title">Perfil</div>
+        <div class="section-sub">Gerencie seus dados e preferências</div>
+      </div>
+      <div class="perfil-card">
+        <div class="pf-avatar-wrap">
+          <div class="pf-avatar" id="pf-avatar">R</div>
+          <div class="pf-avatar-info">
+            <div class="pf-name" id="pf-display-name">–</div>
+            <div class="pf-email" id="pf-display-email">–</div>
+          </div>
+        </div>
+        <div class="perfil-card-title">Informações pessoais</div>
+        <div class="pf-row">
+          <div class="pf-field">
+            <label>Nome completo</label>
+            <input type="text" id="pf-nome" placeholder="Seu nome">
+          </div>
+          <div class="pf-field">
+            <label>Especialidade</label>
+            <input type="text" id="pf-especialidade" placeholder="Ex: Otorrinolaringologia">
+          </div>
+        </div>
+        <div class="pf-field">
+          <label>Telefone</label>
+          <input type="tel" id="pf-telefone" placeholder="(11) 99999-9999">
+        </div>
+        <button class="btn-save" id="btn-save-perfil" onclick="salvarPerfil()">💾 Salvar alterações</button>
+      </div>
+      <div class="perfil-card">
+        <div class="perfil-card-title">Segurança</div>
+        <div class="pf-field">
+          <label>E-mail da conta</label>
+          <input type="email" id="pf-email" placeholder="seu@email.com">
+        </div>
+        <div class="pf-field">
+          <label>Nova senha</label>
+          <input type="password" id="pf-senha" placeholder="Deixe em branco para não alterar">
+        </div>
+        <div class="pf-field">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="pf-senha2" placeholder="Repita a nova senha">
+        </div>
+        <button class="btn-save" id="btn-save-seg" onclick="salvarSeguranca()">🔒 Atualizar segurança</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- ============================================================
-     DADOS DEMO — usados quando Supabase não está configurado
-     Substitua SUPABASE_URL e SUPABASE_KEY acima para usar o banco real
-     ============================================================ -->
 <script>
-const DEMO_CARDS = [
-  { id:1, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Osso Temporal - Partes", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 4 partes do osso temporal?",
-    resposta:"⇒ Escamosa\n⇒ Mastóidea\n⇒ Petrosa\n⇒ Timpânica",
-    observacao:"O processo estiloide origina-se da parte timpânica — pegadinha clássica em prova.", fonte:"ABORL-CCF 4ª ed.", pagina:"12" },
-  { id:2, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Canal Carotídeo", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Qual estrutura passa pelo canal carotídeo da parte petrosa?",
-    resposta:"Artéria carótida interna",
-    observacao:"Faz trajeto em S dentro do osso temporal — relevante em cirurgias da base do crânio.", fonte:"ABORL-CCF 4ª ed.", pagina:"13" },
-  { id:3, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Nervo Facial - Segmentos", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são os 3 segmentos intratemporais do nervo facial?",
-    resposta:"⇒ Labiríntico (mais curto)\n⇒ Timpânico (horizontal)\n⇒ Mastoideo (vertical)",
-    observacao:"O segmento labiríntico é o mais estreito e menos vascularizado — ponto mais vulnerável a isquemia.", fonte:"ABORL-CCF 4ª ed.", pagina:"18" },
-  { id:4, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Gânglio Geniculado", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Onde fica o gânglio geniculado do nervo facial?",
-    resposta:"Na junção entre os segmentos labiríntico e timpânico, na primeira curva (joelho) do nervo facial intratemporal",
-    observacao:"", fonte:"ABORL-CCF 4ª ed.", pagina:"18" },
-  { id:5, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Cóclea - Espiras", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quantas espiras tem a cóclea humana?",
-    resposta:"2,5 espiras (aproximadamente)",
-    observacao:"A base processa frequências altas; o ápice processa frequências baixas.", fonte:"ABORL-CCF 4ª ed.", pagina:"21" },
-  { id:6, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Cóclea - Rampas", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 3 rampas (escalas) da cóclea?",
-    resposta:"⇒ Rampa vestibular (escala vestibuli) — perilinfa\n⇒ Rampa média (ducto coclear) — endolinfa\n⇒ Rampa timpânica (escala tympani) — perilinfa",
-    observacao:"A rampa média é a única com endolinfa (rica em K⁺). As outras têm perilinfa (rica em Na⁺). Pegadinha frequente.", fonte:"ABORL-CCF 4ª ed.", pagina:"22" },
-  { id:7, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Parte Mastóidea", tipo:"Lacuna",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - A parte mastóidea contém as células ___, que se comunicam com a orelha média pelo ___.",
-    resposta:"células mastóideas (pneumatizadas) ... antro mastoideo",
-    observacao:"O antro mastoideo é o ponto de acesso cirúrgico na mastoidectomia.", fonte:"ABORL-CCF 4ª ed.", pagina:"14" },
-  { id:8, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Canal Semicircular Lateral", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Em qual plano está o canal semicircular lateral?",
-    resposta:"Plano horizontal — inclinado ~30° em relação ao plano de Frankfurt",
-    observacao:"Relevante para o nistagmo: o canal lateral é estimulado pelo roll test (Dix-Hallpike modificado).", fonte:"ABORL-CCF 4ª ed.", pagina:"25" },
-  { id:9, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Membrana Timpânica - Camadas", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Quais são as 3 camadas da membrana timpânica?",
-    resposta:"⇒ Externa: epitélio escamoso (pele)\n⇒ Média: fibras colágenas (circular + radial)\n⇒ Interna: mucosa da orelha média",
-    observacao:"A pars flaccida NÃO tem camada média fibrosa — por isso é mais flácida e onde colesteatomas se originam.", fonte:"ABORL-CCF 4ª ed.", pagina:"16" },
-  { id:10, grande_area:"Otologia", capitulo:"Anatomia Cirúrgica do Osso Temporal", subtema:"Ossículos - Articulação", tipo:"PR",
-    pergunta:"Otologia - Anatomia Cirúrgica do Osso Temporal - Como se chama a articulação entre a bigorna e o estribo?",
-    resposta:"Articulação incudoestapediana",
-    observacao:"Mais frequentemente lesada em traumatismos de orelha média → perda auditiva condutiva.", fonte:"ABORL-CCF 4ª ed.", pagina:"17" }
-];
+// ═══════════════════════════════════════════════════
+//  INIT SUPABASE
+// ═══════════════════════════════════════════════════
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 
-// ============================================================
-//  ESTADO
-// ============================================================
-let TODOS = [];
-let deck = [], idx = 0, revelado = false;
-let placar = { v:0, d:0, e:0 };
-let avMap  = {};
-let hoje   = 0;
-let embaralhado = false;
+// ═══════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════
+db.auth.onAuthStateChange((event, session) => {
+  if (session && session.user) {
+    currentUser = session.user;
+    initApp();
+  } else {
+    currentUser = null;
+    showLogin();
+  }
+});
 
-// ── SUPABASE ────────────────────────────────────────────────
-async function carregarCards() {
-  if (MODO_DEMO) {
-    console.info("Modo DEMO — Supabase não configurado");
-    document.getElementById('demo-badge').style.display = '';
-    TODOS = DEMO_CARDS;
-    iniciarApp();
+function showLogin() {
+  document.getElementById('global-loading').style.display = 'none';
+  document.getElementById('login-page').classList.add('show');
+  document.getElementById('app').classList.remove('show');
+}
+
+function showApp() {
+  document.getElementById('global-loading').style.display = 'none';
+  document.getElementById('login-page').classList.remove('show');
+  document.getElementById('app').classList.add('show');
+}
+
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim();
+  const senha = document.getElementById('inp-senha').value;
+  const btn = document.getElementById('btn-entrar');
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('show');
+
+  if (!email || !senha) {
+    errEl.textContent = 'Preencha e-mail e senha.';
+    errEl.classList.add('show');
     return;
   }
 
-  try {
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-    const { data, error } = await db
-      .from('flashcards')
-      .select('*')
-      .order('id', { ascending: true });
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
 
-    if (error) throw error;
-    TODOS = data;
-    iniciarApp();
-  } catch (err) {
-    console.error("Erro Supabase:", err);
-    document.getElementById('loading').innerHTML =
-      `<div style="text-align:center;padding:40px;color:#ef4444">
-        ❌ Erro ao carregar cards<br>
-        <small style="color:#64748b;margin-top:8px;display:block">${err.message}</small>
-        <button onclick="carregarCards()" style="margin-top:16px;padding:10px 20px;background:#1a3a5c;color:#fff;border:none;border-radius:8px;cursor:pointer">
-          Tentar novamente
-        </button>
-      </div>`;
+  const { error } = await db.auth.signInWithPassword({ email, password: senha });
+
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
+
+  if (error) {
+    errEl.textContent = error.message.includes('Invalid') ? 'E-mail ou senha incorretos.' : error.message;
+    errEl.classList.add('show');
   }
 }
 
-function iniciarApp() {
-  document.getElementById('loading').style.display    = 'none';
-  document.getElementById('filtros').style.display    = '';
-  document.getElementById('barra-prog').style.display = '';
-  document.getElementById('tela-card').style.display  = '';
-  initFiltros();
-  iniciar(TODOS);
+async function doForgot(e) {
+  e.preventDefault();
+  const email = document.getElementById('inp-email').value.trim();
+  const errEl = document.getElementById('login-error');
+  const sucEl = document.getElementById('login-success');
+  errEl.classList.remove('show');
+  sucEl.classList.remove('show');
+
+  if (!email) {
+    errEl.textContent = 'Digite seu e-mail antes de clicar em "Esqueci minha senha".';
+    errEl.classList.add('show');
+    return;
+  }
+
+  const { error } = await db.auth.resetPasswordForEmail(email);
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.classList.add('show');
+  } else {
+    sucEl.textContent = 'Link de redefinição enviado para ' + email;
+    sucEl.classList.add('show');
+  }
 }
 
-// ── FILTROS ──────────────────────────────────────────────────
-function initFiltros() {
-  const areas = [...new Set(TODOS.map(c => c.grande_area))].sort();
-  const caps  = [...new Set(TODOS.map(c => c.capitulo))].sort();
-  const sa = document.getElementById('f-area');
-  const sc = document.getElementById('f-cap');
-  areas.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; sa.appendChild(o); });
-  caps.forEach (c => { const o=document.createElement('option'); o.value=c; o.textContent=c; sc.appendChild(o); });
+async function doLogout() {
+  await db.auth.signOut();
+  closeMoreDrawer();
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT APP
+// ═══════════════════════════════════════════════════
+async function initApp() {
+  showApp();
+  loadUserInfo();
+  loadDashboard();
+  loadFlashcardsData();
+  setDashboardDate();
+
+  // Enter key on login
+  document.getElementById('inp-senha').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doLogin();
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════
+function showSection(sec) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + sec).classList.add('active');
+
+  // sidebar
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.sec === sec);
+  });
+  // bottom nav
+  document.querySelectorAll('.bnav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.sec === sec);
+  });
+
+  if (sec === 'dashboard') loadDashboard();
+  if (sec === 'perfil') loadPerfil();
+}
+
+// ═══════════════════════════════════════════════════
+//  USER INFO
+// ═══════════════════════════════════════════════════
+function loadUserInfo() {
+  if (!currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  const nome = meta.nome || currentUser.email.split('@')[0];
+  const inicial = nome.charAt(0).toUpperCase();
+  document.getElementById('sb-name').textContent = nome;
+  document.getElementById('sb-avatar').textContent = inicial;
+  document.getElementById('dash-greeting').textContent = 'Olá, ' + nome.split(' ')[0] + '! 👋';
+}
+
+function setDashboardDate() {
+  const d = new Date();
+  const dias = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  document.getElementById('dash-date').textContent =
+    dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear();
+}
+
+// ═══════════════════════════════════════════════════
+//  LOCALSTORAGE HELPERS
+// ═══════════════════════════════════════════════════
+function getStats() {
+  const s = localStorage.getItem('orl_stats');
+  return s ? JSON.parse(s) : { ok: 0, dv: 0, no: 0, hojeOk: 0, hoje: 0, lastDate: '', streak: 0 };
+}
+
+function saveStats(st) {
+  localStorage.setItem('orl_stats', JSON.stringify(st));
+}
+
+function updateStreak() {
+  const st = getStats();
+  const today = new Date().toISOString().slice(0, 10);
+  if (st.lastDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (st.lastDate === yesterday) {
+    st.streak = (st.streak || 0) + 1;
+  } else if (st.lastDate !== today) {
+    st.streak = 1;
+  }
+  st.lastDate = today;
+  saveStats(st);
+}
+
+function registerStudy(tipo) {
+  const st = getStats();
+  const today = new Date().toISOString().slice(0, 10);
+  if (st.lastDate !== today) {
+    st.hojeOk = 0;
+    st.hoje = 0;
+  }
+  st.hoje = (st.hoje || 0) + 1;
+  if (tipo === 'ok') { st.ok++; st.hojeOk++; }
+  if (tipo === 'dv') st.dv++;
+  if (tipo === 'no') st.no++;
+  st.lastDate = today;
+  updateStreak();
+  const stNew = getStats();
+  st.streak = stNew.streak;
+  saveStats(st);
+}
+
+// ═══════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════
+function loadDashboard() {
+  const st = getStats();
+  const total = st.ok + st.dv + st.no;
+  const pct = total > 0 ? Math.round((st.ok / total) * 100) : 0;
+
+  document.getElementById('stat-hoje').textContent = st.hoje || 0;
+  document.getElementById('stat-acertos').textContent = total > 0 ? pct + '%' : '–';
+  document.getElementById('stat-streak').textContent = st.streak || 0;
+
+  // streak banner
+  const wrap = document.getElementById('streak-banner-wrap');
+  if ((st.streak || 0) >= 2) {
+    wrap.innerHTML = `<div class="streak-banner" style="margin-bottom:20px">
+      <span class="streak-fire">🔥</span>
+      <div class="streak-text">
+        <div class="sv">${st.streak} dias seguidos!</div>
+        <div class="sl">Continue assim — consistência é o segredo do sucesso</div>
+      </div>
+    </div>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  FLASHCARDS
+// ═══════════════════════════════════════════════════
+let todosCards = [];
+let deckAtual  = [];
+let idxAtual   = 0;
+let placar     = { ok: 0, dv: 0, no: 0 };
+let revelado   = false;
+
+async function loadFlashcardsData() {
+  document.getElementById('fc-loading').style.display = 'block';
+  document.getElementById('fc-empty').style.display    = 'none';
+  document.getElementById('fc-card-wrap').style.display = 'none';
+  document.getElementById('fc-progress').style.display  = 'none';
+
+  const { data, error } = await db.from('flashcards').select('*').order('id');
+
+  document.getElementById('fc-loading').style.display = 'none';
+
+  if (error || !data || data.length === 0) {
+    document.getElementById('fc-empty').style.display = 'block';
+    document.getElementById('stat-total').textContent = '0';
+    document.getElementById('qa-fc-count').textContent = '0 cards';
+    return;
+  }
+
+  todosCards = data;
+  document.getElementById('stat-total').textContent = data.length;
+  document.getElementById('qa-fc-count').textContent = data.length + ' cards';
+
+  // Populate filters
+  const areas = [...new Set(data.map(c => c.grande_area).filter(Boolean))].sort();
+  const areaEl = document.getElementById('f-area');
+  areas.forEach(a => {
+    const o = document.createElement('option');
+    o.value = a; o.textContent = a;
+    areaEl.appendChild(o);
+  });
+
+  iniciarDeck(data);
 }
 
 function filtrar() {
   const area = document.getElementById('f-area').value;
   const cap  = document.getElementById('f-cap').value;
-  const tipo = document.getElementById('f-tipo').value;
-  let lista  = TODOS;
-  if (area) lista = lista.filter(c => c.grande_area === area);
-  if (cap)  lista = lista.filter(c => c.capitulo    === cap);
-  if (tipo) lista = lista.filter(c => c.tipo        === tipo);
-  if (embaralhado) lista = shuffle([...lista]);
-  iniciar(lista);
-}
 
-function shuffle(arr) {
-  for (let i = arr.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
+  let filtrado = todosCards;
+  if (area) filtrado = filtrado.filter(c => c.grande_area === area);
+  if (cap)  filtrado = filtrado.filter(c => c.capitulo === cap);
+
+  // Update chapter options
+  const caps = [...new Set(filtrado.map(c => c.capitulo).filter(Boolean))].sort();
+  const capEl = document.getElementById('f-cap');
+  const capVal = capEl.value;
+  capEl.innerHTML = '<option value="">Todos</option>';
+  caps.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    if (c === capVal) o.selected = true;
+    capEl.appendChild(o);
+  });
+
+  iniciarDeck(filtrado);
 }
 
 function embaralhar() {
-  embaralhado = !embaralhado;
-  document.getElementById('btn-emb').textContent = embaralhado ? '🔀 Em ordem' : '🔀 Embaralhar';
-  filtrar();
-  toast(embaralhado ? 'Cards embaralhados 🔀' : 'Ordem original restaurada');
+  const shuffled = [...deckAtual].sort(() => Math.random() - 0.5);
+  iniciarDeck(shuffled);
+  toast('Deck embaralhado! 🔀');
 }
 
-// ── SESSÃO ───────────────────────────────────────────────────
-function iniciar(lista) {
-  deck = lista; idx = 0; revelado = false;
-  placar = { v:0, d:0, e:0 }; avMap = {};
+function iniciarDeck(cards) {
+  deckAtual = cards;
+  idxAtual  = 0;
+  placar    = { ok: 0, dv: 0, no: 0 };
   document.getElementById('tela-resultado').classList.remove('show');
-  document.getElementById('tela-card').style.display = '';
-  atualizarHeader();
+
+  if (cards.length === 0) {
+    document.getElementById('fc-card-wrap').style.display = 'none';
+    document.getElementById('fc-progress').style.display = 'none';
+    document.getElementById('fc-empty').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('fc-empty').style.display = 'none';
+  document.getElementById('fc-card-wrap').style.display = 'block';
+  document.getElementById('fc-progress').style.display = 'block';
   renderCard();
 }
 
 function renderCard() {
-  if (!deck.length) {
-    document.getElementById('tela-card').innerHTML =
-      '<div class="empty">📭 Nenhum card encontrado para este filtro.</div>';
+  if (idxAtual >= deckAtual.length) {
+    mostrarResultado();
     return;
   }
-  const c = deck[idx];
-  document.getElementById('c-id').textContent      = `#${c.id}`;
-  document.getElementById('c-tipo').textContent    = c.tipo;
-  document.getElementById('c-area').textContent    = c.grande_area;
-  document.getElementById('c-subtema').textContent = c.subtema || '';
-  document.getElementById('c-fonte').textContent   = c.pagina ? `p.${c.pagina}` : '';
-  document.getElementById('c-pergunta').textContent = c.pergunta;
-  document.getElementById('c-resposta').textContent = c.resposta;
 
-  const obs = c.observacao || '';
-  const obsEl = document.getElementById('c-obs');
-  if (obs.trim()) {
+  const c = deckAtual[idxAtual];
+  revelado = false;
+
+  // Head
+  document.getElementById('card-head').innerHTML =
+    `<span class="badge badge-num">#${c.id || ''}</span>` +
+    `<span class="badge badge-tipo">${c.tipo_card || 'PR'}</span>` +
+    (c.grande_area ? `<span class="badge badge-area">${c.grande_area}</span>` : '') +
+    `<span class="card-subtema">${c.subtema || ''}</span>`;
+
+  // Tag
+  document.getElementById('card-tag').innerHTML =
+    `<span class="tag tag-p">📌 Pergunta</span>`;
+
+  // Pergunta
+  document.getElementById('card-pergunta').textContent = c.pergunta || '';
+
+  // Resposta
+  document.getElementById('card-resposta').textContent = c.resposta || '';
+
+  // Obs
+  const obsEl = document.getElementById('card-obs');
+  if (c.observacao) {
+    document.getElementById('card-obs-text').textContent = c.observacao;
     obsEl.style.display = 'block';
-    document.getElementById('c-obs-txt').textContent = obs;
   } else {
     obsEl.style.display = 'none';
   }
 
-  revelado = false;
-  document.getElementById('resp-wrap').classList.remove('show');
-  document.getElementById('btn-rev').style.display = 'flex';
+  // Reset reveal state
+  document.getElementById('resposta-wrap').classList.remove('show');
+  document.getElementById('btn-revelar').style.display = 'flex';
 
-  const el = document.getElementById('card-el');
-  el.style.animation = 'none'; void el.offsetHeight; el.style.animation = '';
+  // Nav buttons
+  document.getElementById('btn-anterior').disabled = idxAtual === 0;
+  document.getElementById('btn-proximo').disabled = false;
 
-  atualizarProgresso();
-  document.getElementById('btn-ant').disabled = idx === 0;
-  document.getElementById('btn-prox').textContent =
-    idx === deck.length-1 ? 'Ver resultado →' : 'Próximo →';
+  // Progress
+  updateProgress();
 }
 
-function atualizarProgresso() {
-  const total = deck.length, atual = idx+1;
-  const pct = total ? Math.round((atual/total)*100) : 0;
-  document.getElementById('prog-txt').textContent  = `Card ${atual} de ${total}`;
-  document.getElementById('prog-pct').textContent  = `${pct}%`;
-  document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('mp-v').textContent = placar.v;
-  document.getElementById('mp-d').textContent = placar.d;
-  document.getElementById('mp-e').textContent = placar.e;
+function updateProgress() {
+  const total = deckAtual.length;
+  const atual = idxAtual + 1;
+  const pct = Math.round(((placar.ok + placar.dv + placar.no) / total) * 100);
+
+  document.getElementById('prog-label').textContent = 'Card ' + atual + ' de ' + total;
+  document.getElementById('prog-pct').textContent = pct + '% avaliados';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('pl-ok').textContent = placar.ok + ' sabia';
+  document.getElementById('pl-dv').textContent = placar.dv + ' dúvida';
+  document.getElementById('pl-no').textContent = placar.no + ' errei';
 }
 
-function atualizarHeader() {
-  document.getElementById('h-total').textContent = `${TODOS.length} cards`;
-  document.getElementById('h-hoje').textContent  = `${hoje} hoje`;
-}
-
-// ── INTERAÇÕES ────────────────────────────────────────────────
-function revelar() {
+function revelarResposta() {
   revelado = true;
-  document.getElementById('resp-wrap').classList.add('show');
-  document.getElementById('btn-rev').style.display = 'none';
+  document.getElementById('resposta-wrap').classList.add('show');
+  document.getElementById('btn-revelar').style.display = 'none';
 }
 
 function avaliar(tipo) {
-  if (!revelado) { revelar(); return; }
-  const id  = deck[idx].id;
-  const ant = avMap[id];
-  if (ant) placar[ant]--;
-  avMap[id] = tipo; placar[tipo]++;
-  hoje++; atualizarHeader();
-  avancar();
+  if (!revelado) return;
+  placar[tipo]++;
+  registerStudy(tipo);
+  updateProgress();
+  idxAtual++;
+  if (idxAtual >= deckAtual.length) {
+    mostrarResultado();
+  } else {
+    renderCard();
+  }
 }
 
-function avancar() {
-  if (idx >= deck.length-1) { mostrarResultado(); return; }
-  idx++; renderCard();
+function proximoCard() {
+  idxAtual++;
+  if (idxAtual >= deckAtual.length) {
+    mostrarResultado();
+  } else {
+    renderCard();
+  }
 }
 
-function ir(delta) {
-  const n = idx+delta;
-  if (n<0 || n>=deck.length) return;
-  idx=n; renderCard();
+function anteriorCard() {
+  if (idxAtual > 0) {
+    idxAtual--;
+    renderCard();
+  }
 }
 
 function mostrarResultado() {
-  document.getElementById('tela-card').style.display = 'none';
-  const total = placar.v+placar.d+placar.e;
-  const pct   = total ? Math.round((placar.v/total)*100) : 0;
-  document.getElementById('r-v').textContent     = placar.v;
-  document.getElementById('r-d').textContent     = placar.d;
-  document.getElementById('r-e').textContent     = placar.e;
-  document.getElementById('res-pct').textContent = `${pct}%`;
-  document.getElementById('res-sub').textContent = `${total} cards avaliados — ${deck.length} no deck`;
-  document.getElementById('tela-resultado').classList.add('show');
-  atualizarProgresso();
+  document.getElementById('fc-card-wrap').style.display = 'none';
+  document.getElementById('fc-progress').style.display = 'none';
+  const tela = document.getElementById('tela-resultado');
+  tela.classList.add('show');
+
+  const total = placar.ok + placar.dv + placar.no;
+  const pct = total > 0 ? Math.round((placar.ok / total) * 100) : 0;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-ok').textContent = placar.ok;
+  document.getElementById('res-dv').textContent = placar.dv;
+  document.getElementById('res-no').textContent = placar.no;
+
+  loadDashboard(); // refresh stats
 }
 
-function reiniciar(apenasErros) {
-  let lista = [...deck];
-  if (apenasErros) {
-    const ids = Object.entries(avMap).filter(([,v])=>v==='d'||v==='e').map(([k])=>parseInt(k));
-    lista = deck.filter(c => ids.includes(c.id));
-    if (!lista.length) { toast('Nenhum erro ou dúvida! 🎉'); return; }
+function reiniciarDeck() {
+  document.getElementById('tela-resultado').classList.remove('show');
+  iniciarDeck([...deckAtual]);
+}
+
+function estudarErros() {
+  // For now reinicia — future feature: filter by previously marked 'no'
+  reiniciarDeck();
+  toast('Funcionalidade em breve! 🚧');
+}
+
+// ═══════════════════════════════════════════════════
+//  PERFIL
+// ═══════════════════════════════════════════════════
+function loadPerfil() {
+  if (!currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  const nome = meta.nome || '';
+  document.getElementById('pf-nome').value = nome;
+  document.getElementById('pf-especialidade').value = meta.especialidade || '';
+  document.getElementById('pf-telefone').value = meta.telefone || '';
+  document.getElementById('pf-email').value = currentUser.email || '';
+  document.getElementById('pf-display-name').textContent = nome || currentUser.email;
+  document.getElementById('pf-display-email').textContent = currentUser.email;
+  const ini = (nome || currentUser.email).charAt(0).toUpperCase();
+  document.getElementById('pf-avatar').textContent = ini;
+}
+
+async function salvarPerfil() {
+  const btn = document.getElementById('btn-save-perfil');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  const { error } = await db.auth.updateUser({
+    data: {
+      nome: document.getElementById('pf-nome').value.trim(),
+      especialidade: document.getElementById('pf-especialidade').value.trim(),
+      telefone: document.getElementById('pf-telefone').value.trim()
+    }
+  });
+  btn.disabled = false;
+  btn.innerHTML = '💾 Salvar alterações';
+  if (error) {
+    toast('Erro: ' + error.message, true);
+  } else {
+    toast('Perfil atualizado! ✅');
+    const { data: { user } } = await db.auth.getUser();
+    currentUser = user;
+    loadUserInfo();
+    loadPerfil();
   }
-  iniciar(lista);
 }
 
-// ── TOAST ─────────────────────────────────────────────────────
-let _tt;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(_tt); _tt = setTimeout(()=>el.classList.remove('show'), 1800);
+async function salvarSeguranca() {
+  const btn = document.getElementById('btn-save-seg');
+  const email = document.getElementById('pf-email').value.trim();
+  const senha = document.getElementById('pf-senha').value;
+  const senha2 = document.getElementById('pf-senha2').value;
+
+  if (senha && senha !== senha2) {
+    toast('As senhas não coincidem.', true);
+    return;
+  }
+  if (!email) {
+    toast('E-mail não pode ser vazio.', true);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  const updates = { email };
+  if (senha) updates.password = senha;
+
+  const { error } = await db.auth.updateUser(updates);
+  btn.disabled = false;
+  btn.innerHTML = '🔒 Atualizar segurança';
+
+  if (error) {
+    toast('Erro: ' + error.message, true);
+  } else {
+    toast('Segurança atualizada! ✅');
+    document.getElementById('pf-senha').value = '';
+    document.getElementById('pf-senha2').value = '';
+  }
 }
 
-// ── TECLADO ───────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-  if (e.key===' '||e.key==='Enter') { e.preventDefault(); if(!revelado) revelar(); }
-  else if (e.key==='1' && revelado) avaliar('v');
-  else if (e.key==='2' && revelado) avaliar('d');
-  else if (e.key==='3' && revelado) avaliar('e');
-  else if (e.key==='ArrowRight') avancar();
-  else if (e.key==='ArrowLeft')  ir(-1);
+// ═══════════════════════════════════════════════════
+//  MORE DRAWER (mobile)
+// ═══════════════════════════════════════════════════
+function toggleMoreDrawer() {
+  const overlay = document.getElementById('more-overlay');
+  const drawer  = document.getElementById('more-drawer');
+  const open = drawer.classList.contains('show');
+  if (open) {
+    closeMoreDrawer();
+  } else {
+    overlay.classList.add('show');
+    drawer.classList.add('show');
+  }
+}
+
+function closeMoreDrawer() {
+  document.getElementById('more-overlay').classList.remove('show');
+  document.getElementById('more-drawer').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('app').classList.contains('show')) return;
+  const secFc = document.getElementById('sec-flashcards');
+  if (!secFc.classList.contains('active')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (!revelado) revelarResposta();
+  }
+  if (e.key === '1' && revelado) avaliar('ok');
+  if (e.key === '2' && revelado) avaliar('dv');
+  if (e.key === '3' && revelado) avaliar('no');
+  if (e.key === 'ArrowRight') proximoCard();
+  if (e.key === 'ArrowLeft') anteriorCard();
 });
 
-// ── BOOT ───────────────────�
+// ═══════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, erro) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = erro ? '#b91c1c' : 'var(--navy)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
