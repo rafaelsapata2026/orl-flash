@@ -1208,4 +1208,83 @@ function loadPerfil() {
   document.getElementById('pf-telefone').value = meta.telefone || '';
   document.getElementById('pf-email').value = currentUser.email || '';
   document.getElementById('pf-display-name').textContent = nome || currentUser.email;
-  docum
+
+  document.getElementById('pf-display-email').textContent = currentUser.email || '';
+  const ini = (nome || currentUser.email || '?').charAt(0).toUpperCase();
+  document.getElementById('pf-avatar').textContent = ini;
+}
+
+async function salvarPerfil() {
+  const btn = document.getElementById('btn-save-perfil');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  try {
+    const { error } = await db.auth.updateUser({
+      data: {
+        nome:          document.getElementById('pf-nome').value.trim(),
+        especialidade: document.getElementById('pf-especialidade').value.trim(),
+        telefone:      document.getElementById('pf-telefone').value.trim()
+      }
+    });
+    if (error) throw error;
+    const { data } = await db.auth.getUser();
+    if (data && data.user) currentUser = data.user;
+    loadPerfil();
+    loadUserInfo();
+    btn.textContent = '✓ Salvo!';
+  } catch (e) {
+    alert('Erro ao salvar perfil: ' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  }
+}
+
+async function salvarSeguranca() {
+  const btn = document.getElementById('btn-save-seg');
+  const original = btn.textContent;
+  const email  = document.getElementById('pf-email').value.trim();
+  const senha  = document.getElementById('pf-senha').value;
+  const senha2 = document.getElementById('pf-senha2').value;
+
+  if (senha && senha !== senha2) { alert('As senhas nao coincidem.'); return; }
+  if (senha && senha.length < 6) { alert('A nova senha deve ter pelo menos 6 caracteres.'); return; }
+
+  const payload = {};
+  if (email && email !== currentUser.email) payload.email = email;
+  if (senha) payload.password = senha;
+  if (Object.keys(payload).length === 0) { alert('Nada para atualizar.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Atualizando...';
+  try {
+    const { error } = await db.auth.updateUser(payload);
+    if (error) throw error;
+    document.getElementById('pf-senha').value = '';
+    document.getElementById('pf-senha2').value = '';
+    btn.textContent = '✓ Atualizado!';
+    if (payload.email) alert('Enviamos um link para o novo e-mail. Confirme para concluir a alteracao.');
+  } catch (e) {
+    alert('Erro ao atualizar seguranca: ' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  }
+}
+
+// ===================================================
+//  MENU "MAIS" (mobile)
+// ===================================================
+function toggleMoreDrawer() {
+  document.getElementById('more-drawer').classList.toggle('show');
+  document.getElementById('more-overlay').classList.toggle('show');
+}
+
+function closeMoreDrawer() {
+  document.getElementById('more-drawer').classList.remove('show');
+  document.getElementById('more-overlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
