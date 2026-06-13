@@ -66,6 +66,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .login-switch a:hover{color:var(--pink);}
 #cadastro-form-wrap{display:none;}
 #cadastro-form-wrap.show{display:block;}
+#reset-form-wrap{display:none;}
+#reset-form-wrap.show{display:block;}
 
 /* ── APP LAYOUT ── */
 #app{display:none;}
@@ -328,6 +330,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
       <button class="btn-login" id="btn-cadastrar" onclick="doCadastro()">Criar conta</button>
       <div class="login-switch">Já tem uma conta? <a href="#" onclick="voltarParaLogin(event)">Entrar</a></div>
+    </div>
+
+    <!-- FORM NOVA SENHA (recuperação) -->
+    <div id="reset-form-wrap">
+      <div class="login-title">Definir nova senha</div>
+      <div class="form-group">
+        <label>Nova senha</label>
+        <input type="password" id="rst-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="rst-senha2" placeholder="Repita a nova senha" autocomplete="new-password">
+      </div>
+      <button class="btn-login" id="btn-reset" onclick="doResetPassword()">Salvar nova senha</button>
+      <div class="login-switch"><a href="#" onclick="voltarParaLogin(event)">Voltar ao login</a></div>
     </div>
 
   </div>
@@ -709,6 +726,11 @@ const _authTimeout = setTimeout(() => showLogin(), 6000);
 
 db.auth.onAuthStateChange((event, session) => {
   clearTimeout(_authTimeout);
+  if (event === 'PASSWORD_RECOVERY') {
+    if (session && session.user) currentUser = session.user;
+    showResetPassword();
+    return;
+  }
   if (session && session.user) {
     currentUser = session.user;
     initApp();
@@ -742,6 +764,7 @@ function voltarParaLogin(e) {
   if (e) e.preventDefault();
   document.getElementById('login-form-wrap').style.display = 'block';
   document.getElementById('cadastro-form-wrap').classList.remove('show');
+  document.getElementById('reset-form-wrap').classList.remove('show');
   document.getElementById('login-error').classList.remove('show');
   document.getElementById('login-success').classList.remove('show');
 }
@@ -841,7 +864,7 @@ async function doForgot(e) {
     return;
   }
 
-  const { error } = await db.auth.resetPasswordForEmail(email);
+  const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
   if (error) {
     errEl.textContent = error.message;
     errEl.classList.add('show');
@@ -1276,6 +1299,44 @@ async function salvarSeguranca() {
 // ===================================================
 //  MENU "MAIS" (mobile)
 // ===================================================
+function showResetPassword() {
+  document.getElementById('global-loading').style.display = 'none';
+  document.getElementById('login-page').classList.add('show');
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login-form-wrap').style.display = 'none';
+  document.getElementById('cadastro-form-wrap').classList.remove('show');
+  document.getElementById('reset-form-wrap').classList.add('show');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-success').classList.remove('show');
+}
+
+async function doResetPassword() {
+  const senha  = document.getElementById('rst-senha').value;
+  const senha2 = document.getElementById('rst-senha2').value;
+  const errEl = document.getElementById('login-error');
+  const sucEl = document.getElementById('login-success');
+  errEl.classList.remove('show');
+  sucEl.classList.remove('show');
+
+  if (!senha || senha.length < 6) { errEl.textContent = 'A senha deve ter pelo menos 6 caracteres.'; errEl.classList.add('show'); return; }
+  if (senha !== senha2) { errEl.textContent = 'As senhas não coincidem.'; errEl.classList.add('show'); return; }
+
+  const btn = document.getElementById('btn-reset');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  const { error } = await db.auth.updateUser({ password: senha });
+  btn.disabled = false;
+  btn.textContent = 'Salvar nova senha';
+
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
+
+  history.replaceState(null, '', window.location.pathname);
+  sucEl.textContent = 'Senha alterada com sucesso! Entrando...';
+  sucEl.classList.add('show');
+  const { data } = await db.auth.getUser();
+  if (data && data.user) { currentUser = data.user; setTimeout(() => initApp(), 900); }
+}
+
 function toggleMoreDrawer() {
   document.getElementById('more-drawer').classList.toggle('show');
   document.getElementById('more-overlay').classList.toggle('show');
