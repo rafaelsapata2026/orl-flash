@@ -327,7 +327,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <input type="password" id="cad-senha2" placeholder="Repita a senha" autocomplete="new-password">
       </div>
       <button class="btn-login" id="btn-cadastrar" onclick="doCadastro()">Criar conta</button>
-      <div class="login-switch">Já tem uma conta? <a href="#" onclick="showLogin(event)">Entrar</a></div>
+      <div class="login-switch">Já tem uma conta? <a href="#" onclick="voltarParaLogin(event)">Entrar</a></div>
     </div>
 
   </div>
@@ -738,8 +738,8 @@ function showCadastro(e) {
   document.getElementById('login-success').classList.remove('show');
 }
 
-function showLogin(e) {
-  e.preventDefault();
+function voltarParaLogin(e) {
+  if (e) e.preventDefault();
   document.getElementById('login-form-wrap').style.display = 'block';
   document.getElementById('cadastro-form-wrap').classList.remove('show');
   document.getElementById('login-error').classList.remove('show');
@@ -1208,4 +1208,4 @@ function loadPerfil() {
   document.getElementById('pf-telefone').value = meta.telefone || '';
   document.getElementById('pf-email').value = currentUser.email || '';
   document.getElementById('pf-display-name').textContent = nome || currentUser.email;
-  document.getElementById(
+  docum
