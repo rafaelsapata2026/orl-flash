@@ -246,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .pf-field label{display:block;font-size:.78rem;font-weight:600;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
 .pf-field input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:.92rem;color:var(--text);}
 .pf-field input:focus{outline:none;border-color:var(--baby2);}
-.pf-row{display:gridid-template-columns:1fr 1fr;gap:14px;}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .btn-save{background:linear-gradient(135deg,var(--pink) 0%,var(--pink2) 100%);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .15s;}
 .btn-save:hover{opacity:.88;}
 .btn-save:disabled{opacity:.6;cursor:default;}
@@ -568,12 +568,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="btn-nav" id="btn-anterior" onclick="anteriorCard()" disabled>← Anterior</button>
           <button class="btn-nav" id="btn-proximo" onclick="proximoCard()">Próximo →</button>
         </div>
-        <div class="teclado-info">Atalhos: <strong>Espaço</strong> revelar · <strong>1</strong> sabia · <strong>2</strong> dúvida · <strong>3</strong> errei · <strong>← →</strong> navegar</div>
+        <div class="teclado-info">Atalhos: <strong>Espaço</strong> revelar · <strong>1</strong> sabia · <strong>2</strong> dúvida · <strong>3</strong> errei B� <strong>← →</strong> navegar</div>
       </div>
       <div id="tela-resultado">
         <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
         <div class="res-titulo">Sessão concluída!</div>
-        <div class="res-sub">Você estudou todos os flashcards</div>
+        <div class="res-sub">Vocà estudou todos os flashcards</div>
         <div class="res-pct" id="res-pct">0%</div>
         <div class="res-pct-lbl">de acertos</div>
         <div class="res-grid">
