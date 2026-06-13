@@ -8,7 +8,7 @@
   const SUPABASE_URL = "https://dpdfzysuyqhovtmclfcc.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwZGZ6eXN1eXFob3Z0bWNsZmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNTYxNTMsImV4cCI6MjA5MzkzMjE1M30.mzt5Sa9VgiymQ51YkVsDJT3vxj6X7vwEciPbpFa3o9s";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" onerror="document.getElementById('global-loading').style.display='none';document.getElementById('login-page').classList.add('show');document.getElementById('login-error-msg').textContent='Erro ao carregar SDK. Verifique sua conexão.';document.getElementById('login-error-msg').classList.add('show');"></script>
 <style>
 :root {
   --navy:   #0f2442;
@@ -373,7 +373,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <span class="nav-badge">Em breve</span>
       </a>
       <a class="nav-item" onclick="showSection('simulados')" data-sec="simulados">
-        <span class="nav-icon">🎯</span> Simulador
+        <span class="nav-icon">🎯</span> Simulados
         <span class="nav-badge">Em breve</span>
       </a>
       <a class="nav-item" onclick="showSection('perfil')" data-sec="perfil">
@@ -406,7 +406,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <span class="bicon">❓</span>Questões
       </button>
       <button class="bnav-item" onclick="showSection('simulados')" data-sec="simulados">
-        <span class="bicon">🎯</span>Simulador
+        <span class="bicon">🎯</span>Simulados
       </button>
       <button class="bnav-item" onclick="toggleMoreDrawer()">
         <span class="bicon">⋯</span>Mais
@@ -568,12 +568,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <button class="btn-nav" id="btn-anterior" onclick="anteriorCard()" disabled>← Anterior</button>
           <button class="btn-nav" id="btn-proximo" onclick="proximoCard()">Próximo →</button>
         </div>
-        <div class="teclado-info">Atalhos: <strong>Espaço</strong> revelar · <strong>1</strong> sabia · <strong>2</strong> dúvida · <strong>3</strong> errei B� <strong>← →</strong> navegar</div>
+        <div class="teclado-info">Atalhos: <strong>Espaço</strong> revelar · <strong>1</strong> sabia · <strong>2</strong> dúvida · <strong>3</strong> errei · <strong>← →</strong> navegar</div>
       </div>
       <div id="tela-resultado">
         <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
         <div class="res-titulo">Sessão concluída!</div>
-        <div class="res-sub">Vocà estudou todos os flashcards</div>
+        <div class="res-sub">Você estudou todos os flashcards</div>
         <div class="res-pct" id="res-pct">0%</div>
         <div class="res-pct-lbl">de acertos</div>
         <div class="res-grid">
@@ -704,7 +704,11 @@ let currentUser = null;
 // ═══════════════════════════════════════════════════
 //  AUTH
 // ═══════════════════════════════════════════════════
+// Fallback: se o onAuthStateChange não disparar em 6s, mostra login
+const _authTimeout = setTimeout(() => showLogin(), 6000);
+
 db.auth.onAuthStateChange((event, session) => {
+  clearTimeout(_authTimeout);
   if (session && session.user) {
     currentUser = session.user;
     initApp();
@@ -1204,16 +1208,4 @@ function loadPerfil() {
   document.getElementById('pf-telefone').value = meta.telefone || '';
   document.getElementById('pf-email').value = currentUser.email || '';
   document.getElementById('pf-display-name').textContent = nome || currentUser.email;
-  document.getElementById('pf-display-email').textContent = currentUser.email;
-  const ini = (nome || currentUser.email).charAt(0).toUpperCase();
-  document.getElementById('pf-avatar').textContent = ini;
-}
-
-async function salvarPerfil() {
-  const btn = document.getElementById('btn-save-perfil');
-  btn.disabled = true;
-  btn.textContent = 'Salvando...';
-  const { error } = await db.auth.updateUser({
-    data: {
-      nome: document.getElementById('pf-nome').value.trim(),
-      especi
+  document.getElementById(

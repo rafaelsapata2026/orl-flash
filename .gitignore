@@ -1,4 +1,4 @@
-# CSVs com conteúdo — fão enviar para o GitHub
+# CSVs com conteúdo — não enviar para o GitHub (são arquivos grandes)
 data/*.csv
 
 # Sistema
