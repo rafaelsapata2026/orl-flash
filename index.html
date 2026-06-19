@@ -191,6 +191,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .resposta-wrap.show{display:block;}
 .resposta{font-size:.95rem;line-height:1.7;white-space:pre-line;color:var(--text);margin-bottom:12px;}
 .obs{background:#fef9c3;border:1.5px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:.85rem;line-height:1.55;color:#78350f;margin-bottom:14px;}
+.card-img{margin:6px 0 16px;}
+.card-img img{display:block;max-width:100%;border-radius:10px;border:1px solid #e5e7eb;}
 .obs-title{font-size:.72rem;font-weight:700;color:#92400e;margin-bottom:4px;text-transform:uppercase;}
 .avaliar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;}
 .btn-av{padding:11px 6px;border:1.5px solid;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:opacity .15s,transform .1s;}
@@ -546,6 +548,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="fc-pl"><div class="fc-dot" style="background:var(--yellow)"></div><span id="pl-dv">0 dúvida</span></div>
           <div class="fc-pl"><div class="fc-dot" style="background:var(--red)"></div><span id="pl-no">0 errei</span></div>
         </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;">
+          <button onclick="recomecarDeck()" style="background:#fff;border:1px solid var(--navy);color:var(--navy);padding:6px 14px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;">🔄 Recomeçar do zero</button>
+          <span id="fc-deck-info" style="display:none;font-size:.82rem;color:#16a34a;font-weight:600;"></span>
+        </div>
       </div>
       <div id="fc-loading" style="text-align:center;padding:40px;color:var(--sub);">
         <div class="spinner-ring" style="margin:0 auto 12px;"></div>
@@ -564,11 +570,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
           <div class="card-body">
             <div id="card-tag"></div>
             <div class="pergunta" id="card-pergunta"></div>
+            <div class="card-img" id="card-img-perg" style="display:none"></div>
             <button class="btn-revelar" id="btn-revelar" onclick="revelarResposta()">
               👁 Revelar Resposta <span class="kbd-hint">Espaço</span>
             </button>
             <div class="resposta-wrap" id="resposta-wrap">
               <div class="resposta" id="card-resposta"></div>
+              <div class="card-img" id="card-img-resp" style="display:none"></div>
               <div class="obs" id="card-obs" style="display:none">
                 <div class="obs-title">⚠ Observação</div>
                 <div id="card-obs-text"></div>
@@ -1012,9 +1020,47 @@ function loadDashboard() {
 // ═══════════════════════════════════════════════════
 let todosCards = [];
 let deckAtual  = [];
+let deckBase   = [];          // deck na ordem corrente, base p/ recomeçar
+let deckKey    = '__all::__all';
 let idxAtual   = 0;
 let placar     = { ok: 0, dv: 0, no: 0 };
 let revelado   = false;
+
+// ── Progresso por deck (localStorage) ──────────────────
+function _lsGet(k){ try { return JSON.parse(localStorage.getItem(k)) || {}; } catch(e){ return {}; } }
+function _lsSet(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function calcDeckKey(){
+  const a = (document.getElementById('f-area').value || '__all');
+  const c = (document.getElementById('f-cap').value  || '__all');
+  return a + '::' + c;
+}
+function salvarProgressoDeck(){
+  if (!deckAtual.length) return;
+  const m = _lsGet('orl_deck_progress');
+  m[deckKey] = { idx: idxAtual, ok: placar.ok, dv: placar.dv, no: placar.no, total: deckAtual.length, updated: Date.now() };
+  _lsSet('orl_deck_progress', m);
+  _lsSet('orl_last_deck', deckKey);
+}
+function limparProgressoDeck(){
+  const m = _lsGet('orl_deck_progress');
+  delete m[deckKey];
+  _lsSet('orl_deck_progress', m);
+}
+function _showDeckUI(hasCards){
+  document.getElementById('tela-resultado').classList.remove('show');
+  document.getElementById('fc-empty').style.display     = hasCards ? 'none'  : 'block';
+  document.getElementById('fc-card-wrap').style.display = hasCards ? 'block' : 'none';
+  document.getElementById('fc-progress').style.display  = hasCards ? 'block' : 'none';
+}
+function atualizarInfoDeck(){
+  const el = document.getElementById('fc-deck-info');
+  if (!el) return;
+  const r = _lsGet('orl_deck_results')[deckKey];
+  if (r && typeof r.pct === 'number'){
+    el.style.display = 'inline';
+    el.textContent = '✓ Última taxa de acerto: ' + r.pct + '%';
+  } else { el.style.display = 'none'; el.textContent = ''; }
+}
 
 async function loadFlashcardsData() {
   document.getElementById('fc-loading').style.display = 'block';
@@ -1046,7 +1092,27 @@ async function loadFlashcardsData() {
     areaEl.appendChild(o);
   });
 
-  iniciarDeck(data);
+  restaurarUltimoDeck(data);
+}
+
+function restaurarUltimoDeck(allData){
+  const lastKey = localStorage.getItem('orl_last_deck');
+  if (!lastKey){ abrirDeck(allData); return; }
+  const [a, c] = lastKey.split('::');
+  const areaEl = document.getElementById('f-area');
+  const capEl  = document.getElementById('f-cap');
+  if (a && a !== '__all') areaEl.value = a;
+  // popular capítulos da área
+  let base = allData;
+  if (a && a !== '__all') base = base.filter(x => x.grande_area === a);
+  const caps = [...new Set(base.map(x => x.capitulo).filter(Boolean))].sort();
+  capEl.innerHTML = '<option value="">Todos</option>';
+  caps.forEach(cp => { const o=document.createElement('option'); o.value=cp; o.textContent=cp; capEl.appendChild(o); });
+  if (c && c !== '__all') capEl.value = c;
+  let filt = allData;
+  if (a && a !== '__all') filt = filt.filter(x => x.grande_area === a);
+  if (c && c !== '__all') filt = filt.filter(x => x.capitulo === c);
+  abrirDeck(filt);
 }
 
 function filtrar() {
@@ -1069,32 +1135,70 @@ function filtrar() {
     capEl.appendChild(o);
   });
 
-  iniciarDeck(filtrado);
+  abrirDeck(filtrado);
 }
 
 function embaralhar() {
-  const shuffled = [...deckAtual].sort(() => Math.random() - 0.5);
-  iniciarDeck(shuffled);
+  if (!deckAtual.length) return;
+  deckAtual = [...deckAtual].sort(() => Math.random() - 0.5);
+  deckBase  = [...deckAtual];
+  idxAtual  = 0;
+  placar    = { ok: 0, dv: 0, no: 0 };
+  limparProgressoDeck();
+  _showDeckUI(true);
+  renderCard();
+  atualizarInfoDeck();
   toast('Deck embaralhado! 🔀');
 }
 
-function iniciarDeck(cards) {
+// Abre um deck retomando de onde parou (se houver progresso salvo)
+function abrirDeck(cards) {
+  deckKey   = calcDeckKey();
+  deckBase  = [...cards];
   deckAtual = cards;
   idxAtual  = 0;
   placar    = { ok: 0, dv: 0, no: 0 };
-  document.getElementById('tela-resultado').classList.remove('show');
 
-  if (cards.length === 0) {
-    document.getElementById('fc-card-wrap').style.display = 'none';
-    document.getElementById('fc-progress').style.display = 'none';
-    document.getElementById('fc-empty').style.display = 'block';
-    return;
+  if (!cards.length) { _showDeckUI(false); return; }
+
+  let retomou = false;
+  const prog = _lsGet('orl_deck_progress')[deckKey];
+  if (prog && prog.total === cards.length && prog.idx > 0 && prog.idx < cards.length) {
+    idxAtual = prog.idx;
+    placar   = { ok: prog.ok || 0, dv: prog.dv || 0, no: prog.no || 0 };
+    retomou  = true;
   }
 
-  document.getElementById('fc-empty').style.display = 'none';
-  document.getElementById('fc-card-wrap').style.display = 'block';
-  document.getElementById('fc-progress').style.display = 'block';
+  _showDeckUI(true);
   renderCard();
+  atualizarInfoDeck();
+  _lsSet('orl_last_deck', deckKey);
+  if (retomou) toast('Retomando de onde você parou — card ' + (idxAtual + 1) + ' 📍');
+}
+
+// Recomeça o deck atual do zero (zera progresso salvo)
+function recomecarDeck() {
+  document.getElementById('tela-resultado').classList.remove('show');
+  limparProgressoDeck();
+  deckAtual = [...deckBase];
+  idxAtual  = 0;
+  placar    = { ok: 0, dv: 0, no: 0 };
+  _showDeckUI(true);
+  renderCard();
+  atualizarInfoDeck();
+  toast('Recomeçando do zero 🔄');
+}
+
+const IMG_BASE = 'https://dpdfzysuyqhovtmclfcc.supabase.co/storage/v1/object/public/imagens/';
+function setCardImg(elId, nome) {
+  const el = document.getElementById(elId);
+  if (nome && nome.trim()) {
+    el.innerHTML = '<img loading="lazy" src="' + IMG_BASE + nome.trim() + '" alt="">';
+    el.style.display = 'block';
+  } else {
+    el.innerHTML = '';
+    el.style.display = 'none';
+  }
 }
 
 function renderCard() {
@@ -1109,7 +1213,7 @@ function renderCard() {
   // Head
   document.getElementById('card-head').innerHTML =
     `<span class="badge badge-num">#${c.id || ''}</span>` +
-    `<span class="badge badge-tipo">${c.tipo_card || 'PR'}</span>` +
+    `<span class="badge badge-tipo">${c.tipo || c.tipo_card || 'PR'}</span>` +
     (c.grande_area ? `<span class="badge badge-area">${c.grande_area}</span>` : '') +
     `<span class="card-subtema">${c.subtema || ''}</span>`;
 
@@ -1120,8 +1224,14 @@ function renderCard() {
   // Pergunta
   document.getElementById('card-pergunta').textContent = c.pergunta || '';
 
+  // Imagem da pergunta
+  setCardImg('card-img-perg', c.imagem_pergunta);
+
   // Resposta
   document.getElementById('card-resposta').textContent = c.resposta || '';
+
+  // Imagem da resposta
+  setCardImg('card-img-resp', c.imagem_resposta);
 
   // Obs
   const obsEl = document.getElementById('card-obs');
@@ -1169,6 +1279,7 @@ function avaliar(tipo) {
   registerStudy(tipo);
   updateProgress();
   idxAtual++;
+  salvarProgressoDeck();
   if (idxAtual >= deckAtual.length) {
     mostrarResultado();
   } else {
@@ -1178,6 +1289,7 @@ function avaliar(tipo) {
 
 function proximoCard() {
   idxAtual++;
+  salvarProgressoDeck();
   if (idxAtual >= deckAtual.length) {
     mostrarResultado();
   } else {
@@ -1188,6 +1300,7 @@ function proximoCard() {
 function anteriorCard() {
   if (idxAtual > 0) {
     idxAtual--;
+    salvarProgressoDeck();
     renderCard();
   }
 }
@@ -1205,12 +1318,17 @@ function mostrarResultado() {
   document.getElementById('res-dv').textContent = placar.dv;
   document.getElementById('res-no').textContent = placar.no;
 
+  // Salva a taxa de acerto do deck e zera o progresso (deck fica refazível)
+  const m = _lsGet('orl_deck_results');
+  m[deckKey] = { pct, ok: placar.ok, dv: placar.dv, no: placar.no, total, updated: Date.now() };
+  _lsSet('orl_deck_results', m);
+  limparProgressoDeck();
+
   loadDashboard(); // refresh stats
 }
 
 function reiniciarDeck() {
-  document.getElementById('tela-resultado').classList.remove('show');
-  iniciarDeck([...deckAtual]);
+  recomecarDeck();
 }
 
 function estudarErros() {
