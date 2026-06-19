@@ -1039,7 +1039,7 @@ function salvarProgressoDeck(){
   const m = _lsGet('orl_deck_progress');
   m[deckKey] = { idx: idxAtual, ok: placar.ok, dv: placar.dv, no: placar.no, total: deckAtual.length, updated: Date.now() };
   _lsSet('orl_deck_progress', m);
-  _lsSet('orl_last_deck', deckKey);
+  localStorage.setItem('orl_last_deck', deckKey);
 }
 function limparProgressoDeck(){
   const m = _lsGet('orl_deck_progress');
@@ -1172,7 +1172,7 @@ function abrirDeck(cards) {
   _showDeckUI(true);
   renderCard();
   atualizarInfoDeck();
-  _lsSet('orl_last_deck', deckKey);
+  localStorage.setItem('orl_last_deck', deckKey);
   if (retomou) toast('Retomando de onde você parou — card ' + (idxAtual + 1) + ' 📍');
 }
 
